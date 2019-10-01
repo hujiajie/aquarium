@@ -15,6 +15,7 @@
 #include <iostream>
 
 #include "Aquarium.h"
+#include "Context.h"
 #include "ContextFactory.h"
 #include "FishModel.h"
 #include "Matrix.h"
@@ -24,7 +25,6 @@
 
 #include "common/AQUARIUM_ASSERT.h"
 #include "include/CmdArgsHelper.h"
-#include "opengl/ContextGL.h"
 
 #include "rapidjson/document.h"
 #include "rapidjson/filewritestream.h"

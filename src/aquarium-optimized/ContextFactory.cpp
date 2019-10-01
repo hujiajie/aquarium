@@ -7,7 +7,9 @@
 #include "Aquarium.h"
 #include "ContextFactory.h"
 
+#ifdef ENABLE_OPENGL_BACKEND
 #include "opengl/ContextGL.h"
+#endif
 #ifdef ENABLE_DAWN_BACKEND
 #include "dawn/ContextDawn.h"
 #endif
@@ -29,7 +31,9 @@ Context *ContextFactory::createContext(BACKENDTYPE backendType)
         case BACKENDTYPE::BACKENDTYPEOPENGL:
         case BACKENDTYPE::BACKENDTYPEANGLE:
             {
+#ifdef ENABLE_OPENGL_BACKEND
                 mContext = new ContextGL(backendType);
+#endif
                 break;
             }
         case BACKENDTYPE::BACKENDTYPEDAWND3D12:

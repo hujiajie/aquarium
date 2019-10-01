@@ -1,3 +1,18 @@
+# Aquarium WASM HACK
+
+Make a gn build in `out/Release` with `dawn_complete_static_libs=true`.
+
+```
+ninja -C out/Release libdawn_static libdawn_native_static
+
+# Needs two levels of nesting otherwise aquarium can't find the assets
+mkdir out/cmake && cd out/cmake
+cmake ../..
+make
+
+./aquarium --num-fish 10000 --backend dawn_metal
+```
+
 # Aquarium
 Aquarium is a native implementation of [WebGL Aquarium](https://github.com/WebGLSamples/WebGLSamples.github.io). The goal of this project is to compare the performance of WebGL version to its native counterparts, such as OpenGL, D3D, Vulkan, Metal, ANGLE and Dawn.
 
