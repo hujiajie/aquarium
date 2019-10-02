@@ -823,7 +823,7 @@ void Aquarium::drawFishes()
     }
 
     // Update all fish data by buffer mapping for Dawn backend except instanced draw.
-    if (toggleBitset.test(static_cast<size_t>(TOGGLE::BUFFERMAPPINGASYNC)))
+//    if (toggleBitset.test(static_cast<size_t>(TOGGLE::BUFFERMAPPINGASYNC)))
     {
         mContext->updateAllFishData(toggleBitset);
     }
