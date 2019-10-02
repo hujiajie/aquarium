@@ -57,12 +57,12 @@ void Context::renderImgui(const FPSTimer &fpsTimer, int *fishCount)
         ImGui::Begin("Aquarium Native");
 
         std::string rendererInfo = mResourceHelper->getRendererInfo();
-        ImGui::Text(rendererInfo.c_str());
+        ImGui::Text("%s", rendererInfo.c_str());
 
         std::ostringstream resolutionStream;
         resolutionStream << "Resolution " << mClientWidth << "x" << mClientHeight;
         std::string resolution = resolutionStream.str();
-        ImGui::Text(resolution.c_str());
+        ImGui::Text("%s", resolution.c_str());
 
         ImGui::PlotLines("[0,100 FPS]", fpsTimer.getHistoryFps(), NUM_HISTORY_DATA, 0, NULL, 0.0f,
                          100.0f, ImVec2(0, 40));

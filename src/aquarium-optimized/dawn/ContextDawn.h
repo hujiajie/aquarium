@@ -10,10 +10,12 @@
 #define CONTEXTDAWN_H
 
 #include <dawn/dawncpp.h>
-#include <dawn_native/DawnNative.h>
-
-#include "GLFW/glfw3.h"
 #include "utils/DawnHelpers.h"
+
+#ifndef __EMSCRIPTEN__
+#include <dawn_native/DawnNative.h>
+#include "GLFW/glfw3.h"
+#endif
 
 #include "../Context.h"
 
@@ -130,28 +132,38 @@ class ContextDawn : public Context
     dawn::Device mDevice;
 
   private:
+#ifndef __EMSCRIPTEN__
     bool GetHardwareAdapter(
         std::unique_ptr<dawn_native::Instance> &instance,
         dawn_native::Adapter *backendAdapter,
         dawn_native::BackendType backendType,
         const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset);
+#endif
     void initAvailableToggleBitset(BACKENDTYPE backendType) override;
+#ifndef __EMSCRIPTEN__
     static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
+#endif
     void destoryFishResource();
 
     static void MapWriteCallback(DawnBufferMapAsyncStatus status, void *, uint64_t, void *userdata);
     void WaitABit();
 
+#ifndef __EMSCRIPTEN__
     // TODO(jiawei.shao@intel.com): remove dawn::TextureUsageBit::CopyDst when the bug in Dawn is
     // fixed.
     static constexpr dawn::TextureUsage kSwapchainBackBufferUsage =
         dawn::TextureUsage::OutputAttachment | dawn::TextureUsage::CopyDst;
+#endif
 
-    bool mIsSwapchainOutOfDate = false;
+    bool mIsSwapchainOutOfDate = true;
+
+#ifndef __EMSCRIPTEN__
     GLFWwindow *mWindow;
     std::unique_ptr<dawn_native::Instance> mInstance;
 
     dawn::SwapChain mSwapchain;
+#endif
+
     dawn::CommandEncoder mCommandEncoder;
     dawn::RenderPassEncoder mRenderPass;
     utils::ComboRenderPassDescriptor mRenderPassDescriptor;

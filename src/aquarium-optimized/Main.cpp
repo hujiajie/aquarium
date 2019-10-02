@@ -7,14 +7,26 @@
 
 #include "Aquarium.h"
 
+#if __EMSCRIPTEN__
+#include <emscripten/emscripten.h>
+#endif
+
+static Aquarium aquarium;
+
+void render() {
+    aquarium.render();
+}
+
 int main(int argc, char **argv) {
-    Aquarium aquarium;
     if (!aquarium.init(argc, argv))
     {
+        printf("init failed\n");
         return -1;
     }
 
+#if __EMSCRIPTEN__
+    emscripten_set_main_loop(render, 0, false);
+#else
     aquarium.display();
-
-    return 0;
+#endif
 }

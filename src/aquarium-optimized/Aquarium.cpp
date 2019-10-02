@@ -154,6 +154,10 @@ bool Aquarium::init(int argc, char **argv)
     // "--enable-msaa": enable 4 times MSAA.
     // "--enable-instanced-draws": use instanced draw. By default, it's individual draw.
     char *pNext;
+#if __EMSCRIPTEN__
+    mBackendType = BACKENDTYPE::BACKENDTYPEWEBGPU;
+    mContext = mFactory->createContext(mBackendType);
+#else
     for (int i = 1; i < argc; ++i)
     {
         std::string cmd(argv[i]);
@@ -165,7 +169,7 @@ bool Aquarium::init(int argc, char **argv)
         }
         if (cmd == "--backend")
         {
-            std::string backend = argv[i++ + 1];
+            std::string backend = argv[++i];
             mBackendType        = getBackendType(backend);
 
             if (mBackendType == BACKENDTYPE::BACKENDTYPELAST)
@@ -176,10 +180,8 @@ bool Aquarium::init(int argc, char **argv)
 
             mContext = mFactory->createContext(mBackendType);
         }
-        else
-        {
-        }
     }
+#endif
 
     if (mContext == nullptr)
     {
@@ -359,8 +361,6 @@ void Aquarium::display()
     {
         mContext->KeyBoardQuit();
         render();
-
-        mContext->DoFlush();
 
         if (g.then - g.start > 600)
         {
@@ -727,6 +727,7 @@ void Aquarium::render()
     drawOutside();
 
     mContext->showFPS(mFpsTimer, &mCurFishCount);
+    mContext->DoFlush();
 }
 
 void Aquarium::drawBackground()

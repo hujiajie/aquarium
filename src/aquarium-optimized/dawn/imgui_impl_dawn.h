@@ -4,7 +4,6 @@
 #pragma once
 
 #include <dawn/dawncpp.h>
-#include <dawn_native/DawnNative.h>
 
 #include "ContextDawn.h"
 #include "imgui.h"

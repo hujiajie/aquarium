@@ -53,6 +53,10 @@ ResourceHelper::ResourceHelper(const std::string &mBackendName,
     pathStream << mPath.substr(0, nPos) << slash << ".." << slash << ".." << slash;
     mPath = pathStream.str();
 
+#if __EMSCRIPTEN__
+    mPath = "/";
+#endif
+
     std::ostringstream placementStream;
     placementStream << mPath << resourceFolder << slash << "PropPlacement.js";
     mPropPlacementPath = placementStream.str();
@@ -81,6 +85,11 @@ ResourceHelper::ResourceHelper(const std::string &mBackendName,
         case BACKENDTYPE::BACKENDTYPEDAWNMETAL:
         {
             mBackendTypeStr = "Dawn Metal";
+            break;
+        }
+        case BACKENDTYPE::BACKENDTYPEWEBGPU:
+        {
+            mBackendTypeStr = "WebGPU";
             break;
         }
         case BACKENDTYPE::BACKENDTYPEANGLE:

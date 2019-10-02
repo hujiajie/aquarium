@@ -34,6 +34,7 @@ enum BACKENDTYPE : short
     BACKENDTYPEDAWNVULKAN,
     BACKENDTYPED3D12,
     BACKENDTYPEOPENGL,
+    BACKENDTYPEWEBGPU,
     BACKENDTYPELAST
 };
 
@@ -434,6 +435,7 @@ class Aquarium
     ~Aquarium();
     bool init(int argc, char **argv);
     void display();
+    void render();
     Texture *getSkybox() { return mTextureMap["skybox"]; }
     int getCurFishCount() const { return mCurFishCount; }
     int getPreFishCount() const { return mPreFishCount; }
@@ -447,7 +449,6 @@ class Aquarium
     int fishCount[5];
 
   private:
-    void render();
     void loadReource();
     void loadPlacement();
     void loadModels();

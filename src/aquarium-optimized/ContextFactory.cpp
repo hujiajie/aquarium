@@ -39,6 +39,7 @@ Context *ContextFactory::createContext(BACKENDTYPE backendType)
         case BACKENDTYPE::BACKENDTYPEDAWND3D12:
         case BACKENDTYPE::BACKENDTYPEDAWNMETAL:
         case BACKENDTYPE::BACKENDTYPEDAWNVULKAN:
+        case BACKENDTYPE::BACKENDTYPEWEBGPU:
             {
 #ifdef ENABLE_DAWN_BACKEND
                 mContext = new ContextDawn(backendType);

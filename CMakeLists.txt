@@ -30,7 +30,9 @@ endif()
 # Third Parties
 ###############################################################################
 
-add_subdirectory(third_party/glfw)
+if(NOT EMSCRIPTEN)
+    add_subdirectory(third_party/glfw)
+endif()
 
 set(SHADERC_SKIP_TESTS ON CACHE BOOL "" FORCE)
 set(SHADERC_SPIRV_TOOLS_DIR "${THIRD_PARTY_DIR}/dawn/third_party/SPIRV-Tools" CACHE STRING "" FORCE)
@@ -43,7 +45,18 @@ add_subdirectory(third_party/dawn/third_party/shaderc)
 ###############################################################################
 
 # Ew
-add_definitions(-DDAWN_ENABLE_BACKEND_METAL -DENABLE_DAWN_BACKEND)
+add_definitions(-DENABLE_DAWN_BACKEND)
+
+if(EMSCRIPTEN)
+    add_link_options("SHELL: -s ENVIRONMENT=web")
+    add_link_options("SHELL: -s ASSERTIONS=1")
+    add_link_options("SHELL: -s TOTAL_MEMORY=67108864 -s ALLOW_MEMORY_GROWTH=1 --no-heap-copy")
+    add_link_options("SHELL: -s USE_WEBGPU=1")
+    add_link_options("SHELL: --preload-file ${PROJECT_SOURCE_DIR}/assets@assets")
+    add_link_options("SHELL: --preload-file ${PROJECT_SOURCE_DIR}/shaders@shaders")
+else()
+    add_definitions(-DDAWN_ENABLE_BACKEND_METAL)
+endif()
 
 set(AQUARIUM_SOURCES
     "${SRC_DIR}/common/AQUARIUM_ASSERT.h"
@@ -69,8 +82,8 @@ set(AQUARIUM_SOURCES
     "${SRC_DIR}/aquarium-optimized/Texture.h"
     "${SRC_DIR}/aquarium-optimized/dawn/BufferDawn.cpp"
     "${SRC_DIR}/aquarium-optimized/dawn/BufferDawn.h"
-    "${SRC_DIR}/aquarium-optimized/dawn/ContextDawn.cpp"
     "${SRC_DIR}/aquarium-optimized/dawn/ContextDawn.h"
+    "${SRC_DIR}/aquarium-optimized/dawn/ContextDawn.cpp"
     "${SRC_DIR}/aquarium-optimized/dawn/FishModelDawn.cpp"
     "${SRC_DIR}/aquarium-optimized/dawn/FishModelDawn.h"
     "${SRC_DIR}/aquarium-optimized/dawn/FishModelInstancedDrawDawn.cpp"
@@ -102,14 +115,22 @@ set(AQUARIUM_SOURCES
     "${THIRD_PARTY_DIR}/dawn/src/utils/ComboRenderPipelineDescriptor.cpp"
     "${THIRD_PARTY_DIR}/dawn/src/utils/DawnHelpers.h"
     "${THIRD_PARTY_DIR}/dawn/src/utils/DawnHelpers.cpp"
-    "${THIRD_PARTY_DIR}/dawn/src/utils/SystemUtils.h"
-    "${THIRD_PARTY_DIR}/dawn/src/utils/SystemUtils.cpp"
-
-    # Only stuff not in the emscripten build?
-    "${THIRD_PARTY_DIR}/dawn/src/utils/BackendBinding.h"
-    "${THIRD_PARTY_DIR}/dawn/src/utils/BackendBinding.cpp"
-    "${THIRD_PARTY_DIR}/dawn/src/utils/MetalBinding.mm"
     )
+
+if(EMSCRIPTEN)
+    set(AQUARIUM_SOURCES ${AQUARIUM_SOURCES}
+        "${PROJECT_SOURCE_DIR}/out/Release/gen/third_party/dawn/src/dawn/dawncpp.cpp"
+        "${SRC_DIR}"
+        )
+else()
+    set(AQUARIUM_SOURCES ${AQUARIUM_SOURCES}
+        "${THIRD_PARTY_DIR}/dawn/src/utils/SystemUtils.h"
+        "${THIRD_PARTY_DIR}/dawn/src/utils/SystemUtils.cpp"
+        "${THIRD_PARTY_DIR}/dawn/src/utils/BackendBinding.h"
+        "${THIRD_PARTY_DIR}/dawn/src/utils/BackendBinding.cpp"
+        "${THIRD_PARTY_DIR}/dawn/src/utils/MetalBinding.mm"
+        )
+endif()
 
 add_executable(aquarium ${AQUARIUM_SOURCES})
 
@@ -124,14 +145,20 @@ target_include_directories(aquarium
     PRIVATE "${DAWN_SOURCE_DIR}/src"
     )
 
+
 target_link_libraries(aquarium
-    glfw
     shaderc
-    "${DAWN_BUILD_DIR}/libdawn_native.a"
-    "${DAWN_BUILD_DIR}/src/dawn/libdawn.a"
-    "-framework Cocoa"
-    "-framework IOKit"
-    "-framework IOSurface"
-    "-framework Metal"
-    "-framework QuartzCore"
     )
+
+if(NOT EMSCRIPTEN)
+    target_link_libraries(aquarium
+        glfw
+        "${DAWN_BUILD_DIR}/libdawn_native.a"
+        "${DAWN_BUILD_DIR}/src/dawn/libdawn.a"
+        "-framework Cocoa"
+        "-framework IOKit"
+        "-framework IOSurface"
+        "-framework Metal"
+        "-framework QuartzCore"
+        )
+endif()
