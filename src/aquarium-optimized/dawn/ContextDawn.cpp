@@ -708,8 +708,7 @@ void ContextDawn::preFrame()
 {
     if (mIsSwapchainOutOfDate) {
 #if __EMSCRIPTEN__
-        mClientWidth = 400;
-        mClientHeight = 300;
+        emscripten_get_canvas_element_size(nullptr, &mClientWidth, &mClientHeight);
 #else
         glfwGetFramebufferSize(mWindow, &mClientWidth, &mClientHeight);
         if (mEnableMSAA) {

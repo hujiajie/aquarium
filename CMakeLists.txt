@@ -133,6 +133,13 @@ else()
 endif()
 
 add_executable(aquarium ${AQUARIUM_SOURCES})
+if(EMSCRIPTEN)
+    configure_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/web/index.html
+        ${CMAKE_CURRENT_BINARY_DIR}/index.html
+        COPYONLY)
+endif()
+
 
 target_include_directories(aquarium
     PRIVATE "${SRC_DIR}"
