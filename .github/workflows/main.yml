@@ -1,0 +1,48 @@
+on: [repository_dispatch, push]
+
+jobs:
+  webgl:
+    runs-on: ubuntu-16.04
+    steps:
+    - env:
+        CFLAGS: -s SIMD=0
+        CXXFLAGS: -fno-rtti -fno-exceptions -s SIMD=0
+        LDFLAGS: -s SIMD=0
+        INSTDIR: dist
+      run: |
+        curl -s -L -H "Accept: application/vnd.github.v3.raw" "https://api.github.com/repos/$GITHUB_REPOSITORY/contents/build.sh?ref=$GITHUB_REF" | sh -ex 2>&1
+    - uses: actions/upload-artifact@v1
+      with:
+        name: webgl
+        path: dist
+  webgl-simd:
+    runs-on: ubuntu-16.04
+    steps:
+    - env:
+        CFLAGS: -s SIMD=1
+        CXXFLAGS: -fno-rtti -fno-exceptions -s SIMD=1
+        LDFLAGS: -s SIMD=1
+        INSTDIR: dist
+      run: |
+        curl -s -L -H "Accept: application/vnd.github.v3.raw" "https://api.github.com/repos/$GITHUB_REPOSITORY/contents/build.sh?ref=$GITHUB_REF" | sh -ex 2>&1
+    - uses: actions/upload-artifact@v1
+      with:
+        name: webgl-simd
+        path: dist
+  gh-pages:
+    runs-on: ubuntu-16.04
+    needs: [webgl, webgl-simd]
+    steps:
+    - uses: actions/download-artifact@v1
+      with:
+        name: webgl
+        path: dist/webgl
+    - uses: actions/download-artifact@v1
+      with:
+        name: webgl-simd
+        path: dist/webgl-simd
+    - env:
+        GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+        INSTDIR: dist
+      run: |
+        curl -s -L -H "Accept: application/vnd.github.v3.raw" "https://api.github.com/repos/$GITHUB_REPOSITORY/contents/deploy.sh?ref=$GITHUB_REF" | sh -ex 2>&1
