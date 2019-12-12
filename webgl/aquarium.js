@@ -908,7 +908,7 @@ Module.expectedDataFileDownloads++;
    "filename": "/shaders/d3d12/fishVertexShaderInstancedDraws"
   } ],
   "remote_package_size": 11887969,
-  "package_uuid": "eba4a1b7-2f28-4a90-b04c-0b8f1cf957a3"
+  "package_uuid": "873e3400-c9fc-4e58-8c39-3810ddc8d7b8"
  });
 })();
 
