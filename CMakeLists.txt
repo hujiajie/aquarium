@@ -16,14 +16,16 @@ if(NOT EXISTS "${DAWN_SOURCE_DIR}")
     message(FATAL_ERROR "Dawn not found in third_party/dawn")
 endif()
 
-set(DAWN_BUILD_DIR "${PROJECT_SOURCE_DIR}/out/Release/obj/third_party/dawn")
-if(NOT EXISTS "${DAWN_BUILD_DIR}")
-    message(FATAL_ERROR "No build found in ${DAWN_BUILD_DIR}. Create it and be sure to build with dawn_complete_static_libs = true")
-endif()
+if(NOT EMSCRIPTEN)
+    set(DAWN_BUILD_DIR "${PROJECT_SOURCE_DIR}/out/Release/obj/third_party/dawn")
+    if(NOT EXISTS "${DAWN_BUILD_DIR}")
+        message(FATAL_ERROR "No build found in ${DAWN_BUILD_DIR}. Create it and be sure to build with dawn_complete_static_libs = true")
+    endif()
 
-set(DAWN_GEN_DIR "${PROJECT_SOURCE_DIR}/out/Release/gen/third_party/dawn")
-if(NOT EXISTS "${DAWN_GEN_DIR}")
-    message(FATAL_ERROR "No build found in ${DAWN_GEN_DIR}. Create it and be sure to build with dawn_complete_static_libs = true")
+    set(DAWN_GEN_DIR "${PROJECT_SOURCE_DIR}/out/Release/gen/third_party/dawn")
+    if(NOT EXISTS "${DAWN_GEN_DIR}")
+        message(FATAL_ERROR "No build found in ${DAWN_GEN_DIR}. Create it and be sure to build with dawn_complete_static_libs = true")
+    endif()
 endif()
 
 ###############################################################################
@@ -117,12 +119,7 @@ set(AQUARIUM_SOURCES
     "${THIRD_PARTY_DIR}/dawn/src/utils/DawnHelpers.cpp"
     )
 
-if(EMSCRIPTEN)
-    set(AQUARIUM_SOURCES ${AQUARIUM_SOURCES}
-        "${PROJECT_SOURCE_DIR}/out/Release/gen/third_party/dawn/src/dawn/dawncpp.cpp"
-        "${SRC_DIR}"
-        )
-else()
+if(NOT EMSCRIPTEN)
     set(AQUARIUM_SOURCES ${AQUARIUM_SOURCES}
         "${THIRD_PARTY_DIR}/dawn/src/utils/SystemUtils.h"
         "${THIRD_PARTY_DIR}/dawn/src/utils/SystemUtils.cpp"
@@ -147,11 +144,15 @@ target_include_directories(aquarium
     PRIVATE "${THIRD_PARTY_DIR}/imgui"
     PRIVATE "${THIRD_PARTY_DIR}/imgui/examples"
     PRIVATE "${THIRD_PARTY_DIR}/stb"
-    PRIVATE "${DAWN_GEN_DIR}/src/include"
     PRIVATE "${DAWN_SOURCE_DIR}/src/include"
     PRIVATE "${DAWN_SOURCE_DIR}/src"
     )
 
+if(NOT EMSCRIPTEN)
+    target_include_directories(aquarium
+        PRIVATE "${DAWN_GEN_DIR}/src/include"
+        )
+endif()
 
 target_link_libraries(aquarium
     shaderc
