@@ -478,6 +478,7 @@ class Aquarium
     int mCurFishCount;
     int mPreFishCount;
     int logCount;
+    int mTestTime;
     BACKENDTYPE mBackendType;
     ContextFactory *mFactory;
     std::vector<std::string> mSkyUrls;
