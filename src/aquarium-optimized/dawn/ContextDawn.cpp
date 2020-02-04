@@ -15,6 +15,7 @@
 
 #if !__EMSCRIPTEN__
 #include <dawn/dawn_wsi.h>
+#include <dawn/dawn_proc.h>
 #include <dawn_native/DawnNative.h>
 #endif
 
@@ -31,9 +32,12 @@
 
 #include "common/AQUARIUM_ASSERT.h"
 #include "common/Constants.h"
-#include "utils/BackendBinding.h"
 #include "utils/ComboRenderPipelineDescriptor.h"
 #include "utils/SystemUtils.h"
+
+#if !__EMSCRIPTEN__
+#include "utils/BackendBinding.h"
+#endif
 
 // TODO: make imgui work in web, possibly by going through USE_GLFW=3
 #if !__EMSCRIPTEN__
@@ -217,7 +221,7 @@ bool ContextDawn::initialize(
         return false;
     }
 
-    dawnSetProcs(&backendProcs);
+    dawnProcSetProcs(&backendProcs);
     mDevice = dawn::Device::Acquire(backendDevice);
 
     queue = mDevice.CreateQueue();
