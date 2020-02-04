@@ -26,6 +26,8 @@ class Model;
 #include "math.h"
 #endif
 
+constexpr double FPSUPDATEINTERVAL = 0.05;
+
 enum BACKENDTYPE : short
 {
     BACKENDTYPEANGLE,
@@ -393,8 +395,10 @@ struct Global
     float m4t2[16];
     float m4t3[16];
     float colorMult[4] = {1, 1, 1, 1};
-    float then;
-    float start;
+    double then;
+    double start;
+    double lastUpdateFps;
+    int fpsCount;
     float mclock;
     float eyeClock;
 };
@@ -466,8 +470,9 @@ class Aquarium
     void drawOutside();
     void updateWorldProjections(const std::vector<float> &w);
     BACKENDTYPE getBackendType(const std::string &backendPath);
-    float getElapsedTime();
+    double getElapsedTime();
     void printRecordFps();
+    void resetFpsTime();
 
     std::unordered_map<std::string, MODELNAME> mModelEnumMap;
     std::unordered_map<std::string, Texture *> mTextureMap;
