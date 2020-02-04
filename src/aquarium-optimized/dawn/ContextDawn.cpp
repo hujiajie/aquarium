@@ -698,12 +698,14 @@ void ContextDawn::showWindow()
 #endif
 }
 
-void ContextDawn::showFPS(const FPSTimer &fpsTimer, int *fishCount)
+void ContextDawn::showFPS(const FPSTimer &fpsTimer,
+                          int *fishCount,
+                          std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> *toggleBitset)
 {
 #if !__EMSCRIPTEN__
     // Start the Dear ImGui frame
     ImGui_ImplDawn_NewFrame();
-    renderImgui(fpsTimer, fishCount);
+    renderImgui(fpsTimer, fishCount, toggleBitset);
     ImGui_ImplDawn_RenderDrawData(ImGui::GetDrawData());
 #endif
 }

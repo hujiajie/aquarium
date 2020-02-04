@@ -738,7 +738,7 @@ void Aquarium::render()
 
     drawOutside();
 
-    mContext->showFPS(mFpsTimer, &mCurFishCount);
+    mContext->showFPS(mFpsTimer, &mCurFishCount, &toggleBitset);
     mContext->DoFlush(toggleBitset);
 }
 
