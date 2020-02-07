@@ -9,8 +9,8 @@
 #ifndef CONTEXTDAWN_H
 #define CONTEXTDAWN_H
 
-#include <dawn/dawncpp.h>
-#include "utils/DawnHelpers.h"
+#include <dawn/webgpu_cpp.h>
+#include "utils/WGPUHelpers.h"
 
 #ifndef __EMSCRIPTEN__
 #include <dawn_native/DawnNative.h>
@@ -29,9 +29,10 @@ class ContextDawn : public Context
   public:
     ContextDawn(BACKENDTYPE backendType);
     ~ContextDawn();
-    bool initialize(
-        BACKENDTYPE backend,
-        const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset) override;
+    bool initialize(BACKENDTYPE backend,
+                    const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset,
+                    int windowWidth,
+                    int windowHeight) override;
     void setWindowTitle(const std::string &text) override;
     bool ShouldQuit() override;
     void KeyBoardQuit() override;
@@ -56,70 +57,73 @@ class ContextDawn : public Context
 
     Texture *createTexture(const std::string &name, const std::string &url) override;
     Texture *createTexture(const std::string &name, const std::vector<std::string> &urls) override;
-    dawn::Texture createTexture(const dawn::TextureDescriptor &descriptor) const;
-    dawn::Sampler createSampler(const dawn::SamplerDescriptor &descriptor) const;
-    dawn::Buffer createBufferFromData(const void *pixels, int size, dawn::BufferUsage usage) const;
-    dawn::BufferCopyView createBufferCopyView(const dawn::Buffer &buffer,
-        uint32_t offset,
-        uint32_t rowPitch,
-        uint32_t imageHeight) const;
-    dawn::CommandBuffer copyBufferToTexture(const dawn::BufferCopyView &bufferCopyView,
-                                            const dawn::TextureCopyView &textureCopyView,
-                                            const dawn::Extent3D &ext3D) const;
-    dawn::CommandBuffer copyBufferToBuffer(dawn::Buffer const &srcBuffer,
+    wgpu::Texture createTexture(const wgpu::TextureDescriptor &descriptor) const;
+    wgpu::Sampler createSampler(const wgpu::SamplerDescriptor &descriptor) const;
+    wgpu::Buffer createBufferFromData(const void *pixels, int size, wgpu::BufferUsage usage) const;
+    wgpu::BufferCopyView createBufferCopyView(const wgpu::Buffer &buffer,
+                                              uint32_t offset,
+                                              uint32_t rowPitch,
+                                              uint32_t imageHeight) const;
+    wgpu::CommandBuffer copyBufferToTexture(const wgpu::BufferCopyView &bufferCopyView,
+                                            const wgpu::TextureCopyView &textureCopyView,
+                                            const wgpu::Extent3D &ext3D) const;
+    wgpu::CommandBuffer copyBufferToBuffer(wgpu::Buffer const &srcBuffer,
                                            uint64_t srcOffset,
-                                           dawn::Buffer const &destBuffer,
+                                           wgpu::Buffer const &destBuffer,
                                            uint64_t destOffset,
                                            uint64_t size);
 
-    dawn::TextureCopyView createTextureCopyView(dawn::Texture texture,
+    wgpu::TextureCopyView createTextureCopyView(wgpu::Texture texture,
                                                 uint32_t level,
                                                 uint32_t slice,
-                                                dawn::Origin3D origin);
-    dawn::ShaderModule createShaderModule(utils::SingleShaderStage stage,
+                                                wgpu::Origin3D origin);
+    wgpu::ShaderModule createShaderModule(utils::SingleShaderStage stage,
                                           const std::string &str) const;
-    dawn::BindGroupLayout  MakeBindGroupLayout(
-        std::initializer_list<dawn::BindGroupLayoutBinding> bindingsInitializer) const;
-    dawn::PipelineLayout MakeBasicPipelineLayout(
-        std::vector<dawn::BindGroupLayout> bindingsInitializer) const;
-    dawn::RenderPipeline createRenderPipeline(
-        dawn::PipelineLayout mPipelineLayout,
+    wgpu::BindGroupLayout MakeBindGroupLayout(
+        std::initializer_list<wgpu::BindGroupLayoutBinding> bindingsInitializer) const;
+    wgpu::PipelineLayout MakeBasicPipelineLayout(
+        std::vector<wgpu::BindGroupLayout> bindingsInitializer) const;
+    wgpu::RenderPipeline createRenderPipeline(
+        wgpu::PipelineLayout mPipelineLayout,
         ProgramDawn *mProgramDawn,
-        const dawn::VertexInputDescriptor &mVertexInputDescriptor,
+        const wgpu::VertexStateDescriptor &mVertexInputDescriptor,
         bool enableBlend) const;
-    dawn::TextureView createMultisampledRenderTargetView() const;
-    dawn::TextureView createDepthStencilView() const;
-    dawn::Buffer createBuffer(uint32_t size, dawn::BufferUsage bit) const;
-    void setBufferData(const dawn::Buffer &buffer, uint32_t start, uint32_t size, const void* pixels) const;
-    dawn::BindGroup makeBindGroup(
-        const dawn::BindGroupLayout &layout,
+    wgpu::TextureView createMultisampledRenderTargetView() const;
+    wgpu::TextureView createDepthStencilView() const;
+    wgpu::Buffer createBuffer(uint32_t size, wgpu::BufferUsage bit) const;
+    void setBufferData(const wgpu::Buffer &buffer,
+                       uint32_t start,
+                       uint32_t size,
+                       const void *pixels) const;
+    wgpu::BindGroup makeBindGroup(
+        const wgpu::BindGroupLayout &layout,
         std::initializer_list<utils::BindingInitializationHelper> bindingsInitializer) const;
 
     void initGeneralResources(Aquarium* aquarium) override;
     void updateWorldlUniforms(Aquarium* aquarium) override;
-    const dawn::Device &getDevice() const { return mDevice; }
-    const dawn::RenderPassEncoder &getRenderPass() const { return mRenderPass; }
+    const wgpu::Device &getDevice() const { return mDevice; }
+    const wgpu::RenderPassEncoder &getRenderPass() const { return mRenderPass; }
 
     void reallocResource(int preTotalInstance,
                          int curTotalInstance,
                          bool enableDynamicBufferOffset) override;
     void updateAllFishData(
         const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset) override;
-    dawn::CreateBufferMappedResult CreateBufferMapped(dawn::BufferUsage usage, uint64_t size);
+    wgpu::CreateBufferMappedResult CreateBufferMapped(wgpu::BufferUsage usage, uint64_t size);
 
-    std::vector<dawn::CommandBuffer> mCommandBuffers;
-    dawn::Queue queue;
+    std::vector<wgpu::CommandBuffer> mCommandBuffers;
+    wgpu::Queue queue;
 
-    dawn::BindGroupLayout groupLayoutGeneral;
-    dawn::BindGroup bindGroupGeneral;
-    dawn::BindGroupLayout groupLayoutWorld;
-    dawn::BindGroup bindGroupWorld;
+    wgpu::BindGroupLayout groupLayoutGeneral;
+    wgpu::BindGroup bindGroupGeneral;
+    wgpu::BindGroupLayout groupLayoutWorld;
+    wgpu::BindGroup bindGroupWorld;
 
-    dawn::BindGroupLayout groupLayoutFishPer;
-    dawn::Buffer fishPersBuffer;
-    dawn::BindGroup *bindGroupFishPers;
+    wgpu::BindGroupLayout groupLayoutFishPer;
+    wgpu::Buffer fishPersBuffer;
+    wgpu::BindGroup *bindGroupFishPers;
 
-    dawn::Buffer stagingBuffer;
+    wgpu::Buffer stagingBuffer;
 
     struct FishPer
     {
@@ -132,7 +136,7 @@ class ContextDawn : public Context
 
     FishPer *fishPers;
 
-    dawn::Device mDevice;
+    wgpu::Device mDevice;
 
   private:
 #ifndef __EMSCRIPTEN__
@@ -148,14 +152,14 @@ class ContextDawn : public Context
 #endif
     void destoryFishResource();
 
-    static void MapWriteCallback(DawnBufferMapAsyncStatus status, void *, uint64_t, void *userdata);
+    static void MapWriteCallback(WGPUBufferMapAsyncStatus status, void *, uint64_t, void *userdata);
     void WaitABit();
 
 #ifndef __EMSCRIPTEN__
-    // TODO(jiawei.shao@intel.com): remove dawn::TextureUsageBit::CopyDst when the bug in Dawn is
+    // TODO(jiawei.shao@intel.com): remove wgpu::TextureUsageBit::CopyDst when the bug in Dawn is
     // fixed.
-    static constexpr dawn::TextureUsage kSwapchainBackBufferUsage =
-        dawn::TextureUsage::OutputAttachment | dawn::TextureUsage::CopyDst;
+    static constexpr wgpu::TextureUsage kSwapchainBackBufferUsage =
+        wgpu::TextureUsage::OutputAttachment | wgpu::TextureUsage::CopyDst;
 #endif
 
     bool mIsSwapchainOutOfDate = true;
@@ -164,23 +168,23 @@ class ContextDawn : public Context
     GLFWwindow *mWindow;
     std::unique_ptr<dawn_native::Instance> mInstance;
 
-    dawn::SwapChain mSwapchain;
+    wgpu::SwapChain mSwapchain;
 #endif
 
-    dawn::CommandEncoder mCommandEncoder;
-    dawn::RenderPassEncoder mRenderPass;
+    wgpu::CommandEncoder mCommandEncoder;
+    wgpu::RenderPassEncoder mRenderPass;
     utils::ComboRenderPassDescriptor mRenderPassDescriptor;
 
-    dawn::Texture mBackbuffer;
-    dawn::TextureView mSceneRenderTargetView;
-    dawn::TextureView mSceneDepthStencilView;
-    dawn::RenderPipeline mPipeline;
-    dawn::BindGroup mBindGroup;
-    dawn::TextureFormat mPreferredSwapChainFormat;
+    wgpu::TextureView mBackbufferView;
+    wgpu::TextureView mSceneRenderTargetView;
+    wgpu::TextureView mSceneDepthStencilView;
+    wgpu::RenderPipeline mPipeline;
+    wgpu::BindGroup mBindGroup;
+    wgpu::TextureFormat mPreferredSwapChainFormat;
 
-    dawn::Buffer mLightWorldPositionBuffer;
-    dawn::Buffer mLightBuffer;
-    dawn::Buffer mFogBuffer;
+    wgpu::Buffer mLightWorldPositionBuffer;
+    wgpu::Buffer mLightBuffer;
+    wgpu::Buffer mFogBuffer;
 
     bool mEnableMSAA;
     int mPreTotalInstance;

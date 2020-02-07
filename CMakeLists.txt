@@ -115,8 +115,8 @@ set(AQUARIUM_SOURCES
     "${THIRD_PARTY_DIR}/imgui/examples/imgui_impl_glfw.cpp"
     "${THIRD_PARTY_DIR}/dawn/src/utils/ComboRenderPipelineDescriptor.h"
     "${THIRD_PARTY_DIR}/dawn/src/utils/ComboRenderPipelineDescriptor.cpp"
-    "${THIRD_PARTY_DIR}/dawn/src/utils/DawnHelpers.h"
-    "${THIRD_PARTY_DIR}/dawn/src/utils/DawnHelpers.cpp"
+    "${THIRD_PARTY_DIR}/dawn/src/utils/WGPUHelpers.h"
+    "${THIRD_PARTY_DIR}/dawn/src/utils/WGPUHelpers.cpp"
     )
 
 if(NOT EMSCRIPTEN)

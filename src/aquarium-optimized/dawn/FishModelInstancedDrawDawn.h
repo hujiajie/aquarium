@@ -11,7 +11,7 @@
 
 #include "ContextDawn.h"
 #include "ProgramDawn.h"
-#include "dawn/dawncpp.h"
+#include "dawn/webgpu_cpp.h"
 #include "utils/ComboRenderPipelineDescriptor.h"
 
 #include "../FishModel.h"
@@ -77,20 +77,20 @@ class FishModelInstancedDrawDawn : public FishModel
     BufferDawn *mIndicesBuffer;
 
   private:
-    utils::ComboVertexInputDescriptor mVertexInputDescriptor;
-    dawn::RenderPipeline mPipeline;
+    utils::ComboVertexStateDescriptor mVertexStateDescriptor;
+    wgpu::RenderPipeline mPipeline;
 
-    dawn::BindGroupLayout mGroupLayoutModel;
-    dawn::BindGroupLayout mGroupLayoutPer;
-    dawn::PipelineLayout mPipelineLayout;
+    wgpu::BindGroupLayout mGroupLayoutModel;
+    wgpu::BindGroupLayout mGroupLayoutPer;
+    wgpu::PipelineLayout mPipelineLayout;
 
-    dawn::BindGroup mBindGroupModel;
-    dawn::BindGroup mBindGroupPer;
+    wgpu::BindGroup mBindGroupModel;
+    wgpu::BindGroup mBindGroupPer;
 
-    dawn::Buffer mFishVertexBuffer;
-    dawn::Buffer mLightFactorBuffer;
+    wgpu::Buffer mFishVertexBuffer;
+    wgpu::Buffer mLightFactorBuffer;
 
-    dawn::Buffer mFishPersBuffer;
+    wgpu::Buffer mFishPersBuffer;
 
     int instance;
 

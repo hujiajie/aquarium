@@ -203,6 +203,9 @@ bool Aquarium::init(int argc, char **argv)
         toggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEDYNAMICBUFFEROFFSET));
     }
 
+    int windowWidth  = 0;
+    int windowHeight = 0;
+
     for (int i = 1; i < argc; ++i)
     {
         std::string cmd(argv[i]);
@@ -328,12 +331,24 @@ bool Aquarium::init(int argc, char **argv)
 
             mTestTime = strtol(argv[i++ + 1], &pNext, 10);
         }
+        else if (cmd.find("--window-size") != std::string::npos)
+        {
+            size_t pos1  = cmd.find("=");
+            size_t pos2  = cmd.find(",");
+            windowWidth  = strtol(cmd.substr(pos1 + 1, pos2 - pos1).c_str(), &pNext, 10);
+            windowHeight = strtol(cmd.substr(pos2 + 1).c_str(), &pNext, 10);
+            if (windowWidth == 0 || windowHeight == 0)
+            {
+                std::cerr << "Please input window size with the format: "
+                             "'--window-size=[width],[height].' ";
+            }
+        }
         else
         {
         }
     }
 
-    if (!mContext->initialize(mBackendType, toggleBitset))
+    if (!mContext->initialize(mBackendType, toggleBitset, windowWidth, windowHeight))
     {
         return false;
     }
@@ -370,7 +385,7 @@ void Aquarium::resetFpsTime()
 #ifdef _WIN32
     g.start = GetTickCount64() / 1000.0;
 #else
-    g.start = clock() / 1000000.0;
+    g.start    = clock() / 1000000.0;
 #endif
     g.then          = g.start;
     g.lastUpdateFps = g.then;

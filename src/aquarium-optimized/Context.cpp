@@ -56,7 +56,7 @@ void Context::renderImgui(const FPSTimer &fpsTimer,
     }
 
     {
-        ImGui::Begin("Aquarium Native");
+        ImGui::Begin("Aquarium");
 
         std::string rendererInfo = mResourceHelper->getRendererInfo();
         ImGui::Text("%s", rendererInfo.c_str());
@@ -108,4 +108,16 @@ void Context::renderImgui(const FPSTimer &fpsTimer,
     }
 
     ImGui::Render();
+}
+
+void Context::setWindowSize(int windowWidth, int windowHeight)
+{
+    if (windowWidth != 0)
+    {
+        mClientWidth = windowWidth;
+    }
+    if (windowHeight != 0)
+    {
+        mClientHeight = windowHeight;
+    }
 }

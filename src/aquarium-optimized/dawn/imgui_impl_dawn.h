@@ -3,14 +3,14 @@
 
 #pragma once
 
-#include <dawn/dawncpp.h>
+#include <dawn/webgpu_cpp.h>
 
 #include "ContextDawn.h"
 #include "imgui.h"
-#include "utils/DawnHelpers.h"
+#include "utils/WGPUHelpers.h"
 
 IMGUI_IMPL_API bool ImGui_ImplDawn_Init(ContextDawn *context,
-                                        dawn::TextureFormat rtv_format,
+                                        wgpu::TextureFormat rtv_format,
                                         bool enableMSAA);
 IMGUI_IMPL_API void ImGui_ImplDawn_Shutdown();
 IMGUI_IMPL_API void ImGui_ImplDawn_NewFrame();
