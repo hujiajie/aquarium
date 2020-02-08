@@ -228,7 +228,7 @@ bool ContextDawn::initialize(
         const char *kValidToggleName = "turn_off_vsync";
         descriptor.forceEnabledToggles.push_back(kValidToggleName);
     }
-    else if (toggleBitset.test(static_cast<size_t>(TOGGLE::DISABLERENDERPASS)))
+    else if (toggleBitset.test(static_cast<size_t>(TOGGLE::DISABLED3D12RENDERPASS)))
     {
         const char *kValidToggleName = "use_d3d12_render_pass";
         descriptor.forceDisabledToggles.push_back(kValidToggleName);
@@ -340,7 +340,7 @@ void ContextDawn::initAvailableToggleBitset(BACKENDTYPE backendType)
     mAvailableToggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEFULLSCREENMODE));
     mAvailableToggleBitset.set(static_cast<size_t>(TOGGLE::BUFFERMAPPINGASYNC));
     mAvailableToggleBitset.set(static_cast<size_t>(TOGGLE::TURNOFFVSYNC));
-    mAvailableToggleBitset.set(static_cast<size_t>(TOGGLE::DISABLERENDERPASS));
+    mAvailableToggleBitset.set(static_cast<size_t>(TOGGLE::DISABLED3D12RENDERPASS));
 #endif
 }
 
