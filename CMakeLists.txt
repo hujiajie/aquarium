@@ -78,6 +78,7 @@ set(AQUARIUM_SOURCES
     "${SRC_DIR}/aquarium-optimized/Model.cpp"
     "${SRC_DIR}/aquarium-optimized/Model.h"
     "${SRC_DIR}/aquarium-optimized/Program.h"
+    "${SRC_DIR}/aquarium-optimized/Program.cpp"
     "${SRC_DIR}/aquarium-optimized/ResourceHelper.h"
     "${SRC_DIR}/aquarium-optimized/ResourceHelper.cpp"
     "${SRC_DIR}/aquarium-optimized/SeaweedModel.h"
