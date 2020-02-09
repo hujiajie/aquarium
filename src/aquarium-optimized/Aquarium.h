@@ -227,14 +227,12 @@ const G_sceneInfo g_sceneInfo[] = {
      MODELNAME::MODELSEAWEEDA,
      {"seaweedVertexShader", "seaweedFragmentShader"},
      false,
-     MODELGROUP::SEAWEED,
-     true},
+     MODELGROUP::SEAWEED},
     {"SeaweedB",
      MODELNAME::MODELSEAWEEDB,
      {"seaweedVertexShader", "seaweedFragmentShader"},
      false,
-     MODELGROUP::SEAWEED,
-     true},
+     MODELGROUP::SEAWEED},
     {"Skybox",
      MODELNAME::MODELSKYBOX,
      {"diffuseVertexShader", "diffuseFragmentShader"},
@@ -409,6 +407,7 @@ struct Global
     int fpsCount;
     float mclock;
     float eyeClock;
+    std::string alpha;
 };
 
 struct LightWorldPositionUniform

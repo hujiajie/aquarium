@@ -729,7 +729,8 @@ void ContextDawn::updateFPS(const FPSTimer &fpsTimer,
 {
 #if !__EMSCRIPTEN__
     // Start the Dear ImGui frame
-    ImGui_ImplDawn_NewFrame(mEnableMSAA);
+    ImGui_ImplDawn_NewFrame(toggleBitset->test(static_cast<TOGGLE>(TOGGLE::ENABLEMSAAx4)),
+                            toggleBitset->test(static_cast<TOGGLE>(TOGGLE::ENABLEALPHABLENDING)));
     renderImgui(fpsTimer, fishCount, toggleBitset);
     ImGui_ImplDawn_RenderDrawData(ImGui::GetDrawData());
 #endif
@@ -782,13 +783,18 @@ void ContextDawn::preFrame()
         mRenderPassDescriptor = utils::ComboRenderPassDescriptor({mSceneRenderTargetView},
                                                                  mSceneDepthStencilView);
         mRenderPassDescriptor.cColorAttachments[0].resolveTarget = mBackbufferView;
+        mRenderPassDescriptor.cColorAttachments[0].loadOp        = wgpu::LoadOp::Clear;
+        mRenderPassDescriptor.cColorAttachments[0].storeOp       = wgpu::StoreOp::Clear;
+        mRenderPassDescriptor.cColorAttachments[0].clearColor    = {0.f, 0.8f, 1.f, 0.f};
     }
     else
     {
         // When MSAA is off, we render directly to the backbuffer
         mRenderPassDescriptor =
             utils::ComboRenderPassDescriptor({mBackbufferView}, mSceneDepthStencilView);
-        mRenderPassDescriptor.cColorAttachments[0].clearColor = { 0.5, 0, 0.5, 1 };
+        mRenderPassDescriptor.cColorAttachments[0].loadOp     = wgpu::LoadOp::Clear;
+        mRenderPassDescriptor.cColorAttachments[0].storeOp    = wgpu::StoreOp::Store;
+        mRenderPassDescriptor.cColorAttachments[0].clearColor = {0.f, 0.8f, 1.f, 0.f};
     }
 
     mRenderPass = mCommandEncoder.BeginRenderPass(&mRenderPassDescriptor);
