@@ -440,6 +440,15 @@ struct FogUniforms
     float fogColor[4];
 };
 
+struct FishPer
+{
+    float worldPosition[3];
+    float scale;
+    float nextPosition[3];
+    float time;
+    float padding[56];  // TODO(yizhou): the padding is to align with 256 byte offset.
+};
+
 class Aquarium
 {
   public:

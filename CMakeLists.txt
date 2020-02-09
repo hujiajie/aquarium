@@ -72,6 +72,7 @@ set(AQUARIUM_SOURCES
     "${SRC_DIR}/aquarium-optimized/ContextFactory.cpp"
     "${SRC_DIR}/aquarium-optimized/ContextFactory.h"
     "${SRC_DIR}/aquarium-optimized/FishModel.h"
+    "${SRC_DIR}/aquarium-optimized/FishModel.cpp"
     "${SRC_DIR}/aquarium-optimized/Main.cpp"
     "${SRC_DIR}/aquarium-optimized/Matrix.h"
     "${SRC_DIR}/aquarium-optimized/Model.cpp"

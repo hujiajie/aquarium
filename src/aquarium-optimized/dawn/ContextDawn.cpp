@@ -19,6 +19,7 @@
 #include <dawn_native/DawnNative.h>
 #endif
 
+#include "../FishModel.h"
 #include "BufferDawn.h"
 #include "ContextDawn.h"
 #include "FishModelDawn.h"
