@@ -113,6 +113,11 @@ set(AQUARIUM_SOURCES
     "${THIRD_PARTY_DIR}/imgui/imgui_widgets.cpp"
     "${THIRD_PARTY_DIR}/imgui/examples/imgui_impl_glfw.h"
     "${THIRD_PARTY_DIR}/imgui/examples/imgui_impl_glfw.cpp"
+    "${THIRD_PARTY_DIR}/dawn/src/common/Assert.h"
+    "${THIRD_PARTY_DIR}/dawn/src/common/Assert.cpp"
+    "${THIRD_PARTY_DIR}/dawn/src/common/Compiler.h"
+    "${THIRD_PARTY_DIR}/dawn/src/common/Log.h"
+    "${THIRD_PARTY_DIR}/dawn/src/common/Log.cpp"
     "${THIRD_PARTY_DIR}/dawn/src/utils/ComboRenderPipelineDescriptor.h"
     "${THIRD_PARTY_DIR}/dawn/src/utils/ComboRenderPipelineDescriptor.cpp"
     "${THIRD_PARTY_DIR}/dawn/src/utils/WGPUHelpers.h"
@@ -137,9 +142,15 @@ if(EMSCRIPTEN)
         COPYONLY)
 endif()
 
+if(NOT EMSCRIPTEN)
+    target_include_directories(aquarium
+        PRIVATE "${DAWN_GEN_DIR}/src/include"
+        )
+endif()
 
 target_include_directories(aquarium
     PRIVATE "${SRC_DIR}"
+    PRIVATE "${THIRD_PARTY_DIR}/include"
     PRIVATE "${THIRD_PARTY_DIR}/rapidjson/include"
     PRIVATE "${THIRD_PARTY_DIR}/imgui"
     PRIVATE "${THIRD_PARTY_DIR}/imgui/examples"
@@ -147,12 +158,6 @@ target_include_directories(aquarium
     PRIVATE "${DAWN_SOURCE_DIR}/src/include"
     PRIVATE "${DAWN_SOURCE_DIR}/src"
     )
-
-if(NOT EMSCRIPTEN)
-    target_include_directories(aquarium
-        PRIVATE "${DAWN_GEN_DIR}/src/include"
-        )
-endif()
 
 target_link_libraries(aquarium
     shaderc
