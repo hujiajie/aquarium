@@ -31,7 +31,7 @@ Context *ContextFactory::createContext(BACKENDTYPE backendType)
         case BACKENDTYPE::BACKENDTYPEOPENGL:
         case BACKENDTYPE::BACKENDTYPEANGLE:
             {
-#ifdef ENABLE_OPENGL_BACKEND
+#if defined(ENABLE_OPENGL_BACKEND) || defined(ENABLE_ANGLE_BACKEND)
                 mContext = new ContextGL(backendType);
 #endif
                 break;
@@ -41,17 +41,17 @@ Context *ContextFactory::createContext(BACKENDTYPE backendType)
         case BACKENDTYPE::BACKENDTYPEDAWNVULKAN:
         case BACKENDTYPE::BACKENDTYPEWEBGPU:
             {
-#ifdef ENABLE_DAWN_BACKEND
+#if defined(ENABLE_DAWN_BACKEND)
                 mContext = new ContextDawn(backendType);
 #endif
                 break;
             }
             case BACKENDTYPE::BACKENDTYPED3D12:
             {
-#ifdef ENABLE_D3D12_BACKEND
+#if defined(ENABLE_D3D12_BACKEND)
                 mContext = new ContextD3D12(backendType);
-                break;
 #endif
+                break;
             }
             default:
                 break;
