@@ -9,7 +9,6 @@
 #include <dawn/webgpu_cpp.h>
 #include <array>
 #include <iostream>
-#include <shaderc/shaderc.hpp>
 #include <string>
 #include <vector>
 
