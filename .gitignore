@@ -14,17 +14,17 @@
 *.ini
 
 # Third party libraries
-third_party/*
-!third_party/glad
-!third_party/imgui
-!third_party/BUILD.gn
-!third_party/include
+/third_party/*
+!/third_party/glad
+!/third_party/imgui
+!/third_party/BUILD.gn
+!/third_party/include
 
 # Gn build dummy folders
-.cipd/
-.gclient_entries
-build/
-buildtools/
-out/
-testing/
-tools/
+/.cipd/
+/.gclient_entries
+/build/
+/buildtools/
+/out/
+/testing/
+/tools/
