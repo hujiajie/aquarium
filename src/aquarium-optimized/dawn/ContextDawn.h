@@ -9,7 +9,10 @@
 #ifndef CONTEXTDAWN_H
 #define CONTEXTDAWN_H
 
+#include "../Context.h"
+
 #include <dawn/webgpu_cpp.h>
+#include "BufferManagerDawn.h"
 #include "utils/WGPUHelpers.h"
 
 #ifndef __EMSCRIPTEN__
@@ -17,12 +20,12 @@
 #include "GLFW/glfw3.h"
 #endif
 
-#include "../Context.h"
-
 class TextureDawn;
 class BufferDawn;
 class ProgramDawn;
-enum BACKENDTYPE: short;
+class RingBufferDawn;
+class BufferManagerDawn;
+enum BACKENDTYPE : short;
 
 class ContextDawn : public Context
 {
@@ -48,7 +51,7 @@ class ContextDawn : public Context
 
     void preFrame() override;
 
-    Model *createModel(Aquarium* aquarium, MODELGROUP type, MODELNAME name, bool blend) override;
+    Model *createModel(Aquarium *aquarium, MODELGROUP type, MODELNAME name, bool blend) override;
     Buffer *createBuffer(int numComponents, std::vector<float> *buffer, bool isIndex) override;
     Buffer *createBuffer(int numComponents,
                          std::vector<unsigned short> *buffer,
@@ -72,7 +75,7 @@ class ContextDawn : public Context
                                            uint64_t srcOffset,
                                            wgpu::Buffer const &destBuffer,
                                            uint64_t destOffset,
-                                           uint64_t size);
+                                           uint64_t size) const;
 
     wgpu::TextureCopyView createTextureCopyView(wgpu::Texture texture,
                                                 uint32_t level,
@@ -100,17 +103,20 @@ class ContextDawn : public Context
         const wgpu::BindGroupLayout &layout,
         std::initializer_list<utils::BindingInitializationHelper> bindingsInitializer) const;
 
-    void initGeneralResources(Aquarium* aquarium) override;
-    void updateWorldlUniforms(Aquarium* aquarium) override;
+    void initGeneralResources(Aquarium *aquarium) override;
+    void updateWorldlUniforms(Aquarium *aquarium) override;
     const wgpu::Device &getDevice() const { return mDevice; }
     const wgpu::RenderPassEncoder &getRenderPass() const { return mRenderPass; }
 
     void reallocResource(int preTotalInstance,
                          int curTotalInstance,
-                         bool enableDynamicBufferOffset) override;
+                         bool enableDynamicBufferOffset,
+                         bool enableBufferMappingAsync) override;
     void updateAllFishData(
         const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset) override;
-    wgpu::CreateBufferMappedResult CreateBufferMapped(wgpu::BufferUsage usage, uint64_t size);
+    wgpu::CreateBufferMappedResult CreateBufferMapped(wgpu::BufferUsage usage, uint64_t size) const;
+    void WaitABit();
+    wgpu::CommandEncoder createCommandEncoder() const;
 
     std::vector<wgpu::CommandBuffer> mCommandBuffers;
     wgpu::Queue queue;
@@ -124,7 +130,6 @@ class ContextDawn : public Context
     wgpu::Buffer fishPersBuffer;
     wgpu::BindGroup *bindGroupFishPers;
 
-    wgpu::Buffer stagingBuffer;
     FishPer *fishPers;
 
     wgpu::Device mDevice;
@@ -142,9 +147,6 @@ class ContextDawn : public Context
     static void framebufferResizeCallback(GLFWwindow *window, int width, int height);
 #endif
     void destoryFishResource();
-
-    static void MapWriteCallback(WGPUBufferMapAsyncStatus status, void *, uint64_t, void *userdata);
-    void WaitABit();
 
 #ifndef __EMSCRIPTEN__
     // TODO(jiawei.shao@intel.com): remove wgpu::TextureUsageBit::CopyDst when the bug in Dawn is
@@ -180,7 +182,7 @@ class ContextDawn : public Context
     bool mEnableMSAA;
     bool mEnableDynamicBufferOffset;
 
-    void *mappedData;
+    BufferManagerDawn *bufferManager;
 };
 
 #endif
