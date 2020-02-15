@@ -139,9 +139,10 @@ class ContextDawn : public Context
     bool GetHardwareAdapter(
         std::unique_ptr<dawn_native::Instance> &instance,
         dawn_native::Adapter *backendAdapter,
-        dawn_native::BackendType backendType,
+        wgpu::BackendType backendType,
         const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset);
 #endif
+
     void initAvailableToggleBitset(BACKENDTYPE backendType) override;
 #ifndef __EMSCRIPTEN__
     static void framebufferResizeCallback(GLFWwindow *window, int width, int height);

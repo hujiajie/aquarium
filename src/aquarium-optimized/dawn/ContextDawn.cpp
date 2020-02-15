@@ -37,6 +37,7 @@
 
 #if !__EMSCRIPTEN__
 #include "utils/BackendBinding.h"
+#include "utils/GLFWUtils.h"
 #endif
 
 // TODO: make imgui work in web, possibly by going through USE_GLFW=3
@@ -137,28 +138,28 @@ bool ContextDawn::initialize(
 
     mIsSwapchainOutOfDate = true;
 #else // TODO: probably want some of this stuff in web build
-    dawn_native::BackendType backendType = dawn_native::BackendType::Null;
+    wgpu::BackendType backendType = wgpu::BackendType::Null;
 
     switch (backend)
     {
         case BACKENDTYPE::BACKENDTYPEDAWND3D12:
         {
-            backendType = dawn_native::BackendType::D3D12;
+            backendType = wgpu::BackendType::D3D12;
             break;
         }
         case BACKENDTYPE::BACKENDTYPEDAWNVULKAN:
         {
-            backendType = dawn_native::BackendType::Vulkan;
+            backendType = wgpu::BackendType::Vulkan;
             break;
         }
         case BACKENDTYPE::BACKENDTYPEDAWNMETAL:
         {
-            backendType = dawn_native::BackendType::Metal;
+            backendType = wgpu::BackendType::Metal;
             break;
         }
         case BACKENDTYPE::BACKENDTYPEOPENGL:
         {
-            backendType = dawn_native::BackendType::OpenGL;
+            backendType = wgpu::BackendType::OpenGL;
             break;
         }
         default:
@@ -298,7 +299,7 @@ void ContextDawn::framebufferResizeCallback(GLFWwindow *window, int width, int h
 bool ContextDawn::GetHardwareAdapter(
     std::unique_ptr<dawn_native::Instance> &instance,
     dawn_native::Adapter *backendAdapter,
-    dawn_native::BackendType backendType,
+    wgpu::BackendType backendType,
     const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset)
 {
     bool enableIntegratedGpu = toggleBitset.test(static_cast<size_t>(TOGGLE::INTEGRATEDGPU));
@@ -309,7 +310,9 @@ bool ContextDawn::GetHardwareAdapter(
     // Get an adapter for the backend to use, and create the Device.
     for (auto &adapter : instance->GetAdapters())
     {
-        if (adapter.GetBackendType() == backendType)
+        wgpu::AdapterProperties properties;
+        adapter.GetProperties(&properties);
+        if (properties.backendType == backendType)
         {
             if (useDefaultGpu ||
                 (enableDiscreteGpu &&
