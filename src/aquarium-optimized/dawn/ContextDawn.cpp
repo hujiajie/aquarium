@@ -67,8 +67,11 @@ ContextDawn::ContextDawn(BACKENDTYPE backendType)
 #if !__EMSCRIPTEN__
       mWindow(nullptr),
       mInstance(),
-      mSwapchain(nullptr),
+#else
+      mInstance(),
+      mSurface(nullptr),
 #endif
+      mSwapchain(nullptr),
       mCommandEncoder(nullptr),
       mRenderPass(nullptr),
       mRenderPassDescriptor({}),
@@ -115,9 +118,11 @@ ContextDawn::~ContextDawn()
     groupLayoutFishPer = nullptr;
     destoryFishResource();
 
-#if !__EMSCRIPTEN__
-    mSwapchain               = nullptr;
+#ifdef __EMSCRIPTEN__
+    mSurface                 = nullptr;
 #endif
+
+    mSwapchain               = nullptr;
     queue                    = nullptr;
     mDevice                  = nullptr;
 }
@@ -133,8 +138,28 @@ bool ContextDawn::initialize(
         return false;
     }
 
+    emscripten_get_canvas_element_size("#canvas", &mClientWidth, &mClientHeight);
+
+    mInstance = std::make_unique<wgpu::Instance>();
+
     mDevice = wgpu::Device::Acquire(emscripten_webgpu_get_device());
     queue = mDevice.CreateQueue();
+
+    wgpu::SurfaceDescriptorFromHTMLCanvasId surfaceDescFromHTMLCanvasId;
+    surfaceDescFromHTMLCanvasId.id = "canvas";
+    wgpu::SurfaceDescriptor surfaceDesc;
+    surfaceDesc.nextInChain = &surfaceDescFromHTMLCanvasId;
+
+    mSurface = mInstance->CreateSurface(&surfaceDesc);
+
+    wgpu::SwapChainDescriptor swapChainDesc;
+    swapChainDesc.usage       = kSwapchainBackBufferUsage;
+    swapChainDesc.format      = mPreferredSwapChainFormat;
+    swapChainDesc.width       = mClientWidth;
+    swapChainDesc.height      = mClientHeight;
+    swapChainDesc.presentMode = wgpu::PresentMode::VSync;
+
+    mSwapchain = mDevice.CreateSwapChain(mSurface, &swapChainDesc);
 
     mIsSwapchainOutOfDate = true;
 #else // TODO: probably want some of this stuff in web build
@@ -253,7 +278,8 @@ bool ContextDawn::initialize(
     queue = mDevice.CreateQueue();
     wgpu::SwapChainDescriptor swapChainDesc;
     swapChainDesc.implementation = binding->GetSwapChainImplementation();
-    mSwapchain                   = mDevice.CreateSwapChain(&swapChainDesc);
+
+    mSwapchain = mDevice.CreateSwapChain(nullptr, &swapChainDesc);
 
     mPreferredSwapChainFormat =
         static_cast<wgpu::TextureFormat>(binding->GetPreferredSwapChainTextureFormat());
@@ -757,11 +783,7 @@ void ContextDawn::preFrame()
     }
 
     mCommandEncoder = mDevice.CreateCommandEncoder();
-#if __EMSCRIPTEN__
-    mBackbufferView = wgpu::Texture::Acquire(emscripten_webgpu_get_current_texture()).CreateView();
-#else
     mBackbufferView = mSwapchain.GetCurrentTextureView();
-#endif
 
     if (mEnableMSAA)
     {

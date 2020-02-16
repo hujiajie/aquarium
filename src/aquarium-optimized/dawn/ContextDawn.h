@@ -149,22 +149,22 @@ class ContextDawn : public Context
 #endif
     void destoryFishResource();
 
-#ifndef __EMSCRIPTEN__
     // TODO(jiawei.shao@intel.com): remove wgpu::TextureUsageBit::CopyDst when the bug in Dawn is
     // fixed.
     static constexpr wgpu::TextureUsage kSwapchainBackBufferUsage =
         wgpu::TextureUsage::OutputAttachment | wgpu::TextureUsage::CopyDst;
-#endif
 
     bool mIsSwapchainOutOfDate = true;
 
 #ifndef __EMSCRIPTEN__
     GLFWwindow *mWindow;
     std::unique_ptr<dawn_native::Instance> mInstance;
-
-    wgpu::SwapChain mSwapchain;
+#else
+    std::unique_ptr<wgpu::Instance> mInstance;
+    wgpu::Surface mSurface;
 #endif
 
+    wgpu::SwapChain mSwapchain;
     wgpu::CommandEncoder mCommandEncoder;
     wgpu::RenderPassEncoder mRenderPass;
     utils::ComboRenderPassDescriptor mRenderPassDescriptor;
