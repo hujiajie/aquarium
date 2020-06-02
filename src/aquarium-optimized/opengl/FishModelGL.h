@@ -19,7 +19,11 @@ class BufferGL;
 class FishModelGL : public FishModel
 {
   public:
-    FishModelGL(const ContextGL *context, Aquarium *aquarium, MODELGROUP type, MODELNAME name, bool blend);
+    FishModelGL(const ContextGL *context,
+                Aquarium *aquarium,
+                MODELGROUP type,
+                MODELNAME name,
+                bool blend);
     void prepareForDraw() override;
     void updatePerInstanceUniforms(const WorldUniforms &worldUniforms) override;
 

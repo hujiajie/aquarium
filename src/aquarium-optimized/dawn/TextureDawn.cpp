@@ -13,7 +13,8 @@
 #include "ContextDawn.h"
 #include "common/AQUARIUM_ASSERT.h"
 
-TextureDawn::~TextureDawn() {
+TextureDawn::~TextureDawn()
+{
 
     DestoryImageData(mPixelVec);
     DestoryImageData(mResizedVec);
@@ -48,19 +49,19 @@ TextureDawn::TextureDawn(ContextDawn *context,
 void TextureDawn::loadTexture()
 {
     wgpu::SamplerDescriptor samplerDesc = {};
-    const int kPadding = 256;
+    const int kPadding                  = 256;
     loadImage(mUrls, &mPixelVec);
 
     if (mTextureViewDimension == wgpu::TextureViewDimension::Cube)
     {
         wgpu::TextureDescriptor descriptor;
-        descriptor.dimension = mTextureDimension;
-        descriptor.size.width = mWidth;
-        descriptor.size.height = mHeight;
-        descriptor.size.depth = 1;
+        descriptor.dimension       = mTextureDimension;
+        descriptor.size.width      = mWidth;
+        descriptor.size.height     = mHeight;
+        descriptor.size.depth      = 1;
         descriptor.arrayLayerCount = 6;
-        descriptor.sampleCount = 1;
-        descriptor.format = mFormat;
+        descriptor.sampleCount     = 1;
+        descriptor.format          = mFormat;
         descriptor.mipLevelCount   = 1;
         descriptor.usage           = wgpu::TextureUsage::CopyDst | wgpu::TextureUsage::Sampled;
         mTexture                   = mContext->createTexture(descriptor);
@@ -83,12 +84,12 @@ void TextureDawn::loadTexture()
         }
 
         wgpu::TextureViewDescriptor viewDescriptor;
-        viewDescriptor.nextInChain = nullptr;
+        viewDescriptor.nextInChain     = nullptr;
         viewDescriptor.dimension       = wgpu::TextureViewDimension::Cube;
-        viewDescriptor.format = mFormat;
-        viewDescriptor.baseMipLevel = 0;
+        viewDescriptor.format          = mFormat;
+        viewDescriptor.baseMipLevel    = 0;
         viewDescriptor.mipLevelCount   = 1;
-        viewDescriptor.baseArrayLayer = 0;
+        viewDescriptor.baseArrayLayer  = 0;
         viewDescriptor.arrayLayerCount = 6;
 
         mTextureView = mTexture.CreateView(&viewDescriptor);
@@ -117,13 +118,13 @@ void TextureDawn::loadTexture()
                        true);
 
         wgpu::TextureDescriptor descriptor;
-        descriptor.dimension = mTextureDimension;
-        descriptor.size.width  = resizedWidth;
-        descriptor.size.height = mHeight;
-        descriptor.size.depth = 1;
+        descriptor.dimension       = mTextureDimension;
+        descriptor.size.width      = resizedWidth;
+        descriptor.size.height     = mHeight;
+        descriptor.size.depth      = 1;
         descriptor.arrayLayerCount = 1;
-        descriptor.sampleCount = 1;
-        descriptor.format = mFormat;
+        descriptor.sampleCount     = 1;
+        descriptor.format          = mFormat;
         descriptor.mipLevelCount   = static_cast<uint32_t>(std::floor(
                                        static_cast<float>(std::log2(std::min(mWidth, mHeight))))) +
                                    1;
@@ -133,8 +134,8 @@ void TextureDawn::loadTexture()
         int count = 0;
         for (unsigned int i = 0; i < descriptor.mipLevelCount; ++i, ++count)
         {
-            int height                 = mHeight >> i;
-            int width                  = resizedWidth >> i;
+            int height = mHeight >> i;
+            int width  = resizedWidth >> i;
             if (height == 0)
             {
                 height = 1;
@@ -157,15 +158,15 @@ void TextureDawn::loadTexture()
         }
 
         wgpu::TextureViewDescriptor viewDescriptor;
-        viewDescriptor.nextInChain = nullptr;
+        viewDescriptor.nextInChain  = nullptr;
         viewDescriptor.dimension    = wgpu::TextureViewDimension::e2D;
-        viewDescriptor.format = mFormat;
+        viewDescriptor.format       = mFormat;
         viewDescriptor.baseMipLevel = 0;
         viewDescriptor.mipLevelCount =
             static_cast<uint32_t>(
                 std::floor(static_cast<float>(std::log2(std::min(mWidth, mHeight))))) +
             1;
-        viewDescriptor.baseArrayLayer = 0;
+        viewDescriptor.baseArrayLayer  = 0;
         viewDescriptor.arrayLayerCount = 1;
 
         mTextureView = mTexture.CreateView(&viewDescriptor);

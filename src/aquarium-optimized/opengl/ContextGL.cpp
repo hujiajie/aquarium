@@ -147,15 +147,10 @@ bool ContextGL::initialize(BACKENDTYPE backend,
     const char *displayExtensions = eglQueryString(mDisplay, EGL_EXTENSIONS);
 
     std::vector<EGLint> configAttributes = {
-        EGL_RED_SIZE,       8,
-        EGL_GREEN_SIZE,     8,
-        EGL_BLUE_SIZE,      8,
-        EGL_ALPHA_SIZE,     8,
-        EGL_DEPTH_SIZE,     24,
-        EGL_STENCIL_SIZE,   8,
-        EGL_SAMPLE_BUFFERS, 0,
-        EGL_SAMPLES,        EGL_DONT_CARE
-    };
+        EGL_RED_SIZE,       8,  EGL_GREEN_SIZE,   8,
+        EGL_BLUE_SIZE,      8,  EGL_ALPHA_SIZE,   8,
+        EGL_DEPTH_SIZE,     24, EGL_STENCIL_SIZE, 8,
+        EGL_SAMPLE_BUFFERS, 0,  EGL_SAMPLES,      EGL_DONT_CARE};
 
     // Add dynamic attributes
     bool hasPixelFormatFloat = strstr(displayExtensions, "EGL_EXT_pixel_format_float") != nullptr;

@@ -50,10 +50,10 @@ Aquarium::Aquarium()
       mBackendType(BACKENDTYPE::BACKENDTYPELAST),
       mFactory(nullptr)
 {
-    g.then          = 0.0;
-    g.mclock        = 0.0;
-    g.eyeClock      = 0.0;
-    g.alpha         = "1";
+    g.then     = 0.0;
+    g.mclock   = 0.0;
+    g.eyeClock = 0.0;
+    g.alpha    = "1";
 
     lightUniforms.lightColor[0] = 1.0f;
     lightUniforms.lightColor[1] = 1.0f;
@@ -437,7 +437,7 @@ void Aquarium::resetFpsTime()
 #else
     g.start    = clock() / 1000000.0;
 #endif
-    g.then          = g.start;
+    g.then = g.start;
 }
 
 void Aquarium::display()

@@ -91,8 +91,8 @@ bool ContextD3D12::initialize(
     int windowWidth,
     int windowHeight)
 {
-    mEnableMSAA = toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEMSAAx4));
-    mVsync      = toggleBitset.test(static_cast<size_t>(TOGGLE::TURNOFFVSYNC)) ? 0 : 1;
+    mEnableMSAA          = toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEMSAAx4));
+    mVsync               = toggleBitset.test(static_cast<size_t>(TOGGLE::TURNOFFVSYNC)) ? 0 : 1;
     mDisableControlPanel = toggleBitset.test(static_cast<TOGGLE>(TOGGLE::DISABLECONTROLPANEL));
 
     // initialise GLFW
@@ -788,7 +788,7 @@ ComPtr<ID3DBlob> ContextD3D12::createShaderModule(const std::string &type,
 void ContextD3D12::createCommittedResource(const D3D12_HEAP_PROPERTIES &properties,
                                            const D3D12_RESOURCE_DESC &desc,
                                            D3D12_RESOURCE_STATES state,
-                                           ComPtr<ID3D12Resource>& resource)
+                                           ComPtr<ID3D12Resource> &resource)
 {
     if (FAILED(mDevice->CreateCommittedResource(&properties, D3D12_HEAP_FLAG_NONE, &desc, state,
                                                 nullptr, IID_PPV_ARGS(&resource))))
@@ -889,12 +889,12 @@ void ContextD3D12::beginRenderPass()
 {
     // Reuse the memory associated with command recording.
     // We can only reset when the associated command lists have finished execution on the GPU.
-    //ThrowIfFailed(mCommandAllocators[m_frameIndex]->Reset());
+    // ThrowIfFailed(mCommandAllocators[m_frameIndex]->Reset());
 
     // A command list can be reset after it has been added to the command queue via
     // ExecuteCommandList.
     // Reusing the command list reuses memory.
-    //ThrowIfFailed(mCommandList->Reset(mCommandAllocators[m_frameIndex].Get(), nullptr));
+    // ThrowIfFailed(mCommandList->Reset(mCommandAllocators[m_frameIndex].Get(), nullptr));
 
     // Set descriptor heaps related to command list.
     ID3D12DescriptorHeap *mDescriptorHeaps[] = {mCbvsrvHeap.Get()};
@@ -1033,7 +1033,7 @@ void ContextD3D12::createDepthStencilView()
 }
 
 void ContextD3D12::createCommandList(ID3D12PipelineState *pInitialState,
-                                     ComPtr<ID3D12GraphicsCommandList4>& commandList)
+                                     ComPtr<ID3D12GraphicsCommandList4> &commandList)
 {
     ThrowIfFailed(mDevice->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT,
                                              mCommandAllocators[0].Get(), pInitialState,
@@ -1042,7 +1042,7 @@ void ContextD3D12::createCommandList(ID3D12PipelineState *pInitialState,
 
 ComPtr<ID3D12Resource> ContextD3D12::createDefaultBuffer(const void *initData,
                                                          UINT64 byteSize,
-                                                         ComPtr<ID3D12Resource>& uploadBuffer) const
+                                                         ComPtr<ID3D12Resource> &uploadBuffer) const
 {
     ComPtr<ID3D12Resource> defaultBuffer;
 
@@ -1079,7 +1079,7 @@ ComPtr<ID3D12Resource> ContextD3D12::createDefaultBuffer(const void *initData,
 
 void ContextD3D12::createRootSignature(
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC &pRootSignatureDesc,
-    ComPtr<ID3D12RootSignature>& rootSignature) const
+    ComPtr<ID3D12RootSignature> &rootSignature) const
 {
     ComPtr<ID3DBlob> signature = nullptr;
     ComPtr<ID3DBlob> error     = nullptr;
@@ -1097,8 +1097,8 @@ void ContextD3D12::createRootSignature(
 
 void ContextD3D12::createTexture(const D3D12_RESOURCE_DESC &textureDesc,
                                  const std::vector<UINT8 *> &texture,
-                                 ComPtr<ID3D12Resource>& m_texture,
-                                 ComPtr<ID3D12Resource>& textureUploadHeap,
+                                 ComPtr<ID3D12Resource> &m_texture,
+                                 ComPtr<ID3D12Resource> &textureUploadHeap,
                                  int TextureWidth,
                                  int TextureHeight,
                                  int TexturePixelSize,
@@ -1151,10 +1151,10 @@ void ContextD3D12::createTexture(const D3D12_RESOURCE_DESC &textureDesc,
 
 void ContextD3D12::createGraphicsPipelineState(
     const std::vector<D3D12_INPUT_ELEMENT_DESC> &mInputElementDescs,
-    const ComPtr<ID3D12RootSignature>& rootSignature,
-    const ComPtr<ID3DBlob>& mVertexShader,
-    const ComPtr<ID3DBlob>& mPixelShader,
-    ComPtr<ID3D12PipelineState>& mPipelineState,
+    const ComPtr<ID3D12RootSignature> &rootSignature,
+    const ComPtr<ID3DBlob> &mVertexShader,
+    const ComPtr<ID3DBlob> &mPixelShader,
+    ComPtr<ID3D12PipelineState> &mPipelineState,
     bool enableBlend) const
 {
     // Describe and create the graphics mPipeline state object (PSO).
