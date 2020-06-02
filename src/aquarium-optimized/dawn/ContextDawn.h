@@ -32,8 +32,10 @@ enum BACKENDTYPE : short;
 
 class ContextDawn : public Context {
 public:
-  ContextDawn(BACKENDTYPE backendType);
-  ~ContextDawn();
+  static ContextDawn *create(BACKENDTYPE backendType);
+
+  ~ContextDawn() override;
+
   bool initialize(
       BACKENDTYPE backend,
       const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset,
@@ -158,6 +160,9 @@ public:
   FishPer *fishPers;
 
   wgpu::Device mDevice;
+
+protected:
+  explicit ContextDawn(BACKENDTYPE backendType);
 
 private:
   bool GetHardwareAdapter(
