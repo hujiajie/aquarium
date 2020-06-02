@@ -1,4 +1,4 @@
-#version 450 core
+#version 450
 
 uniform vec3 lightWorldPos;
 uniform mat4 viewInverse;

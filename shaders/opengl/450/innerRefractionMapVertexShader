@@ -1,4 +1,4 @@
-#version 450 core
+#version 450
 
 uniform mat4 worldViewProjection;
 uniform vec3 lightWorldPos;
