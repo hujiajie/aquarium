@@ -5,7 +5,6 @@
 //
 // ContextDawn.h : Defines the accessing to graphics API of Dawn.
 
-#pragma once
 #ifndef CONTEXTDAWN_H
 #define CONTEXTDAWN_H
 
@@ -181,4 +180,4 @@ class ContextDawn : public Context
     BufferManagerDawn *bufferManager;
 };
 
-#endif
+#endif  // CONTEXTDAWN_H

@@ -5,9 +5,8 @@
 //
 // CmdArgsHelper.h: Define cmd arg strings.
 
-#pragma once
-#ifndef CMDARGSHELPER
-#define CMDARGSHELPER 1
+#ifndef CMDARGSHELPER_H
+#define CMDARGSHELPER_H
 
 const char *cmdArgsStrAquarium = R"(Options and arguments:
 --backend               : specifies running a certain backend, 'opengl', 'dawn_d3d12', 'dawn_vulkan', 'dawn_metal', 'dawn_opengl', 'angle', 'd3d12'.
@@ -35,4 +34,4 @@ const char *cmdArgsStrAquariumDirectMap = R"(Options and arguments:
 --enable-msaa           : Enable 4 samples MSAA.
 --num-fish              : specifies how many fishes will be rendered.)";
 
-#endif
+#endif  // CMDARGSHELPER_H

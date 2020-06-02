@@ -513,4 +513,4 @@ class Aquarium
     std::queue<Behavior *> mFishBehavior;
 };
 
-#endif
+#endif  // AQUARIUM_H
