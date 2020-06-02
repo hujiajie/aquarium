@@ -14,7 +14,9 @@
 #include "Windows.h"
 #elif __APPLE__
 #include <mach-o/dyld.h>
+#include <time.h>
 #else
+#include <time.h>
 #include <unistd.h>
 #endif
 
