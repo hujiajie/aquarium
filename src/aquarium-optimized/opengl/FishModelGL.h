@@ -16,8 +16,7 @@ class ContextGL;
 class TextureGL;
 class BufferGL;
 
-class FishModelGL : public FishModel
-{
+class FishModelGL : public FishModel {
 public:
   FishModelGL(const ContextGL *context,
               Aquarium *aquarium,

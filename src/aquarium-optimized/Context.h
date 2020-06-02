@@ -30,8 +30,7 @@ enum TOGGLE : short;
 struct Global;
 static char fishCountInputBuffer[64];
 
-class Context
-{
+class Context {
 public:
   Context() : mDisableControlPanel(false), show_option_window(false) {}
   virtual ~Context() {}
@@ -70,16 +69,14 @@ public:
   virtual void destoryImgUI() = 0;
   virtual void reallocResource(int preTotalInstance,
                                int curTotalInstance,
-                               bool enableDynamicBufferOffset)
-  {
-  }
+                               bool enableDynamicBufferOffset) {}
   virtual void updateAllFishData() = 0;
   virtual void beginRenderPass() {}
 
   int getClientWidth() const { return mClientWidth; }
   int getclientHeight() const { return mClientHeight; }
-  std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> getAvailableToggleBitset()
-  {
+  std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)>
+  getAvailableToggleBitset() {
     return mAvailableToggleBitset;
   }
 

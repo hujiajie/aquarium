@@ -48,8 +48,7 @@ Aquarium::Aquarium()
       mPreFishCount(0),
       mTestTime(INT_MAX),
       mBackendType(BACKENDTYPE::BACKENDTYPELAST),
-      mFactory(nullptr)
-{
+      mFactory(nullptr) {
   g.then     = 0.0;
   g.mclock   = 0.0;
   g.eyeClock = 0.0;
@@ -82,35 +81,27 @@ Aquarium::Aquarium()
   memset(fishCount, 0, 5);
 }
 
-Aquarium::~Aquarium()
-{
-  for (auto &tex : mTextureMap)
-  {
-    if (tex.second != nullptr)
-    {
+Aquarium::~Aquarium() {
+  for (auto &tex : mTextureMap) {
+    if (tex.second != nullptr) {
       delete tex.second;
       tex.second = nullptr;
     }
   }
 
-  for (auto &program : mProgramMap)
-  {
-    if (program.second != nullptr)
-    {
+  for (auto &program : mProgramMap) {
+    if (program.second != nullptr) {
       delete program.second;
       program.second = nullptr;
     }
   }
 
-  for (int i = 0; i < MODELNAME::MODELMAX; ++i)
-  {
+  for (int i = 0; i < MODELNAME::MODELMAX; ++i) {
     delete mAquariumModels[i];
   }
 
-  if (toggleBitset.test(static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO)))
-  {
-    while (!mFishBehavior.empty())
-    {
+  if (toggleBitset.test(static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO))) {
+    while (!mFishBehavior.empty()) {
       Behavior *behave = mFishBehavior.front();
       mFishBehavior.pop();
       delete behave;
@@ -120,38 +111,26 @@ Aquarium::~Aquarium()
   delete mFactory;
 }
 
-BACKENDTYPE Aquarium::getBackendType(const std::string &backendPath)
-{
-  if (backendPath == "opengl")
-  {
+BACKENDTYPE Aquarium::getBackendType(const std::string &backendPath) {
+  if (backendPath == "opengl") {
     return BACKENDTYPE::BACKENDTYPEOPENGL;
-  }
-  else if (backendPath == "dawn_d3d12")
-  {
+  } else if (backendPath == "dawn_d3d12") {
 #if defined(WIN32) || defined(_WIN32)
     return BACKENDTYPE::BACKENDTYPEDAWND3D12;
 #endif
-  }
-  else if (backendPath == "dawn_metal")
-  {
+  } else if (backendPath == "dawn_metal") {
 #if defined(__APPLE__)
     return BACKENDTYPE::BACKENDTYPEDAWNMETAL;
 #endif
-  }
-  else if (backendPath == "dawn_vulkan")
-  {
+  } else if (backendPath == "dawn_vulkan") {
 #if defined(WIN32) || defined(_WIN32) || defined(__linux__)
     return BACKENDTYPE::BACKENDTYPEDAWNVULKAN;
 #endif
-  }
-  else if (backendPath == "angle")
-  {
+  } else if (backendPath == "angle") {
 #if defined(WIN32) || defined(_WIN32)
     return BACKENDTYPE::BACKENDTYPEANGLE;
 #endif
-  }
-  else if (backendPath == "d3d12")
-  {
+  } else if (backendPath == "d3d12") {
 #if defined(WIN32) || defined(_WIN32)
     return BACKENDTYPED3D12;
 #endif
@@ -160,8 +139,7 @@ BACKENDTYPE Aquarium::getBackendType(const std::string &backendPath)
   return BACKENDTYPELAST;
 }
 
-bool Aquarium::init(int argc, char **argv)
-{
+bool Aquarium::init(int argc, char **argv) {
   mFactory = new ContextFactory();
 
   // Create context of different backends through the cmd args.
@@ -172,35 +150,28 @@ bool Aquarium::init(int argc, char **argv)
   // "--enable-instanced-draws": use instanced draw. By default, it's individual
   // draw.
   char *pNext;
-  for (int i = 1; i < argc; ++i)
-  {
+  for (int i = 1; i < argc; ++i) {
     std::string cmd(argv[i]);
-    if (cmd == "-h" || cmd == "--h")
-    {
+    if (cmd == "-h" || cmd == "--h") {
       std::cout << cmdArgsStrAquarium << std::endl;
 
       return false;
     }
-    if (cmd == "--backend")
-    {
+    if (cmd == "--backend") {
       std::string backend = argv[i++ + 1];
       mBackendType        = getBackendType(backend);
 
-      if (mBackendType == BACKENDTYPE::BACKENDTYPELAST)
-      {
+      if (mBackendType == BACKENDTYPE::BACKENDTYPELAST) {
         std::cout << "Can not create " << backend << " backend" << std::endl;
         return false;
       }
 
       mContext = mFactory->createContext(mBackendType);
-    }
-    else
-    {
+    } else {
     }
   }
 
-  if (mContext == nullptr)
-  {
+  if (mContext == nullptr) {
     std::cout << "Failed to create context." << std::endl;
     return false;
   }
@@ -208,13 +179,11 @@ bool Aquarium::init(int argc, char **argv)
   std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> availableToggleBitset =
       mContext->getAvailableToggleBitset();
   if (availableToggleBitset.test(
-          static_cast<size_t>(TOGGLE::UPATEANDDRAWFOREACHMODEL)))
-  {
+          static_cast<size_t>(TOGGLE::UPATEANDDRAWFOREACHMODEL))) {
     toggleBitset.set(static_cast<size_t>(TOGGLE::UPATEANDDRAWFOREACHMODEL));
   }
   if (availableToggleBitset.test(
-          static_cast<size_t>(TOGGLE::ENABLEDYNAMICBUFFEROFFSET)))
-  {
+          static_cast<size_t>(TOGGLE::ENABLEDYNAMICBUFFEROFFSET))) {
     toggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEDYNAMICBUFFEROFFSET));
   }
   toggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEALPHABLENDING));
@@ -222,30 +191,22 @@ bool Aquarium::init(int argc, char **argv)
   int windowWidth  = 0;
   int windowHeight = 0;
 
-  for (int i = 1; i < argc; ++i)
-  {
+  for (int i = 1; i < argc; ++i) {
     std::string cmd(argv[i]);
-    if (cmd == "--num-fish")
-    {
+    if (cmd == "--num-fish") {
       mCurFishCount = strtol(argv[i++ + 1], &pNext, 10);
-      if (mCurFishCount < 0)
-      {
+      if (mCurFishCount < 0) {
         std::cerr << "Fish count should larger or equal to 0." << std::endl;
         return false;
       }
-    }
-    else if (cmd == "--enable-msaa")
-    {
+    } else if (cmd == "--enable-msaa") {
       if (!availableToggleBitset.test(
-              static_cast<size_t>(TOGGLE::ENABLEMSAAx4)))
-      {
+              static_cast<size_t>(TOGGLE::ENABLEMSAAx4))) {
         std::cerr << "MSAA isn't implemented for the backend." << std::endl;
         return false;
       }
       toggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEMSAAx4));
-    }
-    else if (cmd == "--enable-instanced-draws")
-    {
+    } else if (cmd == "--enable-instanced-draws") {
       /*if
       (!availableToggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEINSTANCEDDRAWS)))
       {
@@ -257,12 +218,9 @@ bool Aquarium::init(int argc, char **argv)
       toggleBitset.reset(static_cast<size_t>(TOGGLE::BUFFERMAPPINGASYNC));*/
       std::cerr << "Instanced draw path is deprecated." << std::endl;
       return false;
-    }
-    else if (cmd == "--disable-dynamic-buffer-offset")
-    {
+    } else if (cmd == "--disable-dynamic-buffer-offset") {
       if (!availableToggleBitset.test(
-              static_cast<size_t>(TOGGLE::ENABLEDYNAMICBUFFEROFFSET)))
-      {
+              static_cast<size_t>(TOGGLE::ENABLEDYNAMICBUFFEROFFSET))) {
         std::cerr << "Dynamic buffer offset is only implemented for Dawn "
                      "Vulkan, Dawn "
                      "Metal and D3D12 backend."
@@ -271,108 +229,83 @@ bool Aquarium::init(int argc, char **argv)
       }
       toggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEDYNAMICBUFFEROFFSET),
                        false);
-    }
-    else if (cmd == "--integrated-gpu")
-    {
+    } else if (cmd == "--integrated-gpu") {
       if (!availableToggleBitset.test(
               static_cast<size_t>(TOGGLE::INTEGRATEDGPU)) &&
-          !availableToggleBitset.test(static_cast<size_t>(TOGGLE::DISCRETEGPU)))
-      {
+          !availableToggleBitset.test(
+              static_cast<size_t>(TOGGLE::DISCRETEGPU))) {
         std::cerr << "Dynamically choose gpu isn't supported for the backend."
                   << std::endl;
         return false;
       }
 
-      if (toggleBitset.test(static_cast<size_t>(TOGGLE::DISCRETEGPU)))
-      {
+      if (toggleBitset.test(static_cast<size_t>(TOGGLE::DISCRETEGPU))) {
         std::cerr
             << "Integrated and Discrete gpu cannot be used simultaneosly.";
       }
       toggleBitset.set(static_cast<size_t>(TOGGLE::INTEGRATEDGPU));
-    }
-    else if (cmd == "--discrete-gpu")
-    {
+    } else if (cmd == "--discrete-gpu") {
       if (!availableToggleBitset.test(
               static_cast<size_t>(TOGGLE::INTEGRATEDGPU)) &&
-          !availableToggleBitset.test(static_cast<size_t>(TOGGLE::DISCRETEGPU)))
-      {
+          !availableToggleBitset.test(
+              static_cast<size_t>(TOGGLE::DISCRETEGPU))) {
         std::cerr << "Dynamically choose gpu isn't supported for the backend."
                   << std::endl;
         return false;
       }
 
-      if (toggleBitset.test(static_cast<size_t>(TOGGLE::INTEGRATEDGPU)))
-      {
+      if (toggleBitset.test(static_cast<size_t>(TOGGLE::INTEGRATEDGPU))) {
         std::cerr
             << "Integrated and Discrete gpu cannot be used simultaneosly.";
       }
 
       toggleBitset.set(static_cast<size_t>(TOGGLE::DISCRETEGPU));
-    }
-    else if (cmd == "--enable-full-screen-mode")
-    {
+    } else if (cmd == "--enable-full-screen-mode") {
       if (!availableToggleBitset.test(
-              static_cast<size_t>(TOGGLE::ENABLEFULLSCREENMODE)))
-      {
+              static_cast<size_t>(TOGGLE::ENABLEFULLSCREENMODE))) {
         std::cerr << "Full screen mode isn't supported for the backend."
                   << std::endl;
         return false;
       }
 
       toggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEFULLSCREENMODE));
-    }
-    else if (cmd == "--print-log")
-    {
+    } else if (cmd == "--print-log") {
       toggleBitset.set(static_cast<size_t>(TOGGLE::PRINTLOG));
-    }
-    else if (cmd == "--buffer-mapping-async")
-    {
+    } else if (cmd == "--buffer-mapping-async") {
       if (!availableToggleBitset.test(
-              static_cast<size_t>(TOGGLE::BUFFERMAPPINGASYNC)))
-      {
+              static_cast<size_t>(TOGGLE::BUFFERMAPPINGASYNC))) {
         std::cerr << "Buffer mapping async isn't supported for the backend."
                   << std::endl;
         return false;
       }
 
       toggleBitset.set(static_cast<size_t>(TOGGLE::BUFFERMAPPINGASYNC));
-    }
-    else if (cmd == "--turn-off-vsync")
-    {
+    } else if (cmd == "--turn-off-vsync") {
       if (!availableToggleBitset.test(
-              static_cast<size_t>(TOGGLE::TURNOFFVSYNC)))
-      {
+              static_cast<size_t>(TOGGLE::TURNOFFVSYNC))) {
         std::cerr << "Turn off vsync isn't supported for the backend."
                   << std::endl;
         return false;
       }
 
       toggleBitset.set(static_cast<size_t>(TOGGLE::TURNOFFVSYNC));
-    }
-    else if (cmd == "--test-time")
-    {
+    } else if (cmd == "--test-time") {
 
       mTestTime = strtol(argv[i++ + 1], &pNext, 10);
       toggleBitset.set(static_cast<size_t>(TOGGLE::AUTOSTOP));
-    }
-    else if (cmd.find("--window-size") != std::string::npos)
-    {
+    } else if (cmd.find("--window-size") != std::string::npos) {
       size_t pos1 = cmd.find("=");
       size_t pos2 = cmd.find(",");
       windowWidth =
           strtol(cmd.substr(pos1 + 1, pos2 - pos1).c_str(), &pNext, 10);
       windowHeight = strtol(cmd.substr(pos2 + 1).c_str(), &pNext, 10);
-      if (windowWidth == 0 || windowHeight == 0)
-      {
+      if (windowWidth == 0 || windowHeight == 0) {
         std::cerr << "Please input window size with the format: "
                      "'--window-size=[width],[height].' ";
       }
-    }
-    else if (cmd == "--disable-d3d12-render-pass")
-    {
+    } else if (cmd == "--disable-d3d12-render-pass") {
       if (!availableToggleBitset.test(
-              static_cast<size_t>(TOGGLE::DISABLED3D12RENDERPASS)))
-      {
+              static_cast<size_t>(TOGGLE::DISABLED3D12RENDERPASS))) {
         std::cerr
             << "Render pass is only supported for dawn_d3d12 backend. This "
                "feature "
@@ -383,35 +316,25 @@ bool Aquarium::init(int argc, char **argv)
       }
 
       toggleBitset.set(static_cast<size_t>(TOGGLE::DISABLED3D12RENDERPASS));
-    }
-    else if (cmd == "--disable-dawn-validation")
-    {
+    } else if (cmd == "--disable-dawn-validation") {
       if (!availableToggleBitset.test(
-              static_cast<size_t>(TOGGLE::DISABLEDAWNVALIDATION)))
-      {
+              static_cast<size_t>(TOGGLE::DISABLEDAWNVALIDATION))) {
         std::cerr << "Disable validation for Dawn backend." << std::endl;
         return false;
       }
 
       toggleBitset.set(static_cast<size_t>(TOGGLE::DISABLEDAWNVALIDATION));
-    }
-    else if (cmd.find("--enable-alpha-blending") != std::string::npos)
-    {
+    } else if (cmd.find("--enable-alpha-blending") != std::string::npos) {
       size_t pos = cmd.find("=");
-      if (pos != std::string::npos)
-      {
+      if (pos != std::string::npos) {
         g.alpha = cmd.substr(pos + 1).c_str();
-        if (g.alpha == "false")
-        {
+        if (g.alpha == "false") {
           toggleBitset.reset(static_cast<size_t>(TOGGLE::ENABLEALPHABLENDING));
         }
       }
-    }
-    else if (cmd == "--simulating-fish-come-and-go")
-    {
+    } else if (cmd == "--simulating-fish-come-and-go") {
       if (!availableToggleBitset.test(
-              static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO)))
-      {
+              static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO))) {
         std::cerr << "Simulating fish come and go is only implemented for Dawn "
                      "backend."
                   << std::endl;
@@ -419,16 +342,13 @@ bool Aquarium::init(int argc, char **argv)
       }
 
       toggleBitset.set(static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO));
-    }
-    else if (cmd == "--disable-control-panel")
-    {
+    } else if (cmd == "--disable-control-panel") {
       toggleBitset.set(static_cast<size_t>(TOGGLE::DISABLECONTROLPANEL));
     }
   }
 
   if (!mContext->initialize(mBackendType, toggleBitset, windowWidth,
-                            windowHeight))
-  {
+                            windowHeight)) {
     return false;
   }
 
@@ -460,8 +380,7 @@ bool Aquarium::init(int argc, char **argv)
   return true;
 }
 
-void Aquarium::resetFpsTime()
-{
+void Aquarium::resetFpsTime() {
 #ifdef _WIN32
   g.start = GetTickCount64() / 1000.0;
 #else
@@ -470,51 +389,42 @@ void Aquarium::resetFpsTime()
   g.then = g.start;
 }
 
-void Aquarium::display()
-{
-  while (!mContext->ShouldQuit())
-  {
+void Aquarium::display() {
+  while (!mContext->ShouldQuit()) {
     mContext->KeyBoardQuit();
     render();
 
     mContext->DoFlush(toggleBitset);
 
     if (toggleBitset.test(static_cast<size_t>(TOGGLE::AUTOSTOP)) &&
-        (g.then - g.start) > mTestTime)
-    {
+        (g.then - g.start) > mTestTime) {
       break;
     }
   }
 
   mContext->Terminate();
 
-  if (toggleBitset.test(static_cast<size_t>(TOGGLE::PRINTLOG)))
-  {
+  if (toggleBitset.test(static_cast<size_t>(TOGGLE::PRINTLOG))) {
     printAvgFps();
   }
 }
 
-void Aquarium::loadReource()
-{
+void Aquarium::loadReource() {
   loadModels();
   loadPlacement();
-  if (toggleBitset.test(static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO)))
-  {
+  if (toggleBitset.test(static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO))) {
     loadFishScenario();
   }
 }
 
-void Aquarium::setupModelEnumMap()
-{
-  for (auto &info : g_sceneInfo)
-  {
+void Aquarium::setupModelEnumMap() {
+  for (auto &info : g_sceneInfo) {
     mModelEnumMap[info.namestr] = info.name;
   }
 }
 
 // Load world matrices of models from json file.
-void Aquarium::loadPlacement()
-{
+void Aquarium::loadPlacement() {
   const ResourceHelper *resourceHelper = mContext->getResourceHelper();
   std::string proppath                 = resourceHelper->getPropPlacementPath();
   std::ifstream PlacementStream(proppath, std::ios::in);
@@ -528,44 +438,38 @@ void Aquarium::loadPlacement()
   const rapidjson::Value &objects = document["objects"];
   ASSERT(objects.IsArray());
 
-  for (rapidjson::SizeType i = 0; i < objects.Size(); ++i)
-  {
+  for (rapidjson::SizeType i = 0; i < objects.Size(); ++i) {
     const rapidjson::Value &name        = objects[i]["name"];
     const rapidjson::Value &worldMatrix = objects[i]["worldMatrix"];
     ASSERT(worldMatrix.IsArray() && worldMatrix.Size() == 16);
 
     std::vector<float> matrix;
-    for (rapidjson::SizeType j = 0; j < worldMatrix.Size(); ++j)
-    {
+    for (rapidjson::SizeType j = 0; j < worldMatrix.Size(); ++j) {
       matrix.push_back(worldMatrix[j].GetFloat());
     }
 
     MODELNAME modelname = mModelEnumMap[name.GetString()];
     // MODELFIRST means the model is not found in the Map
-    if (modelname != MODELNAME::MODELFIRST)
-    {
+    if (modelname != MODELNAME::MODELFIRST) {
       mAquariumModels[modelname]->worldmatrices.push_back(matrix);
     }
   }
 }
 
-void Aquarium::loadModels()
-{
+void Aquarium::loadModels() {
   bool enableInstanceddraw =
       toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEINSTANCEDDRAWS));
-  for (const auto &info : g_sceneInfo)
-  {
+  for (const auto &info : g_sceneInfo) {
     if ((enableInstanceddraw && info.type == MODELGROUP::FISH) ||
-        ((!enableInstanceddraw) && info.type == MODELGROUP::FISHINSTANCEDDRAW))
-    {
+        ((!enableInstanceddraw) &&
+         info.type == MODELGROUP::FISHINSTANCEDDRAW)) {
       continue;
     }
     loadModel(info);
   }
 }
 
-void Aquarium::loadFishScenario()
-{
+void Aquarium::loadFishScenario() {
   const ResourceHelper *resourceHelper = mContext->getResourceHelper();
   std::string fishBehaviorPath         = resourceHelper->getFishBehaviorPath();
 
@@ -577,8 +481,7 @@ void Aquarium::loadFishScenario()
   const rapidjson::Value &behaviors = document["behaviors"];
   ASSERT(behaviors.IsArray());
 
-  for (rapidjson::SizeType i = 0; i < behaviors.Size(); ++i)
-  {
+  for (rapidjson::SizeType i = 0; i < behaviors.Size(); ++i) {
     int frame      = behaviors[i]["frame"].GetInt();
     std::string op = behaviors[i]["op"].GetString();
     int count      = behaviors[i]["count"].GetInt();
@@ -589,8 +492,7 @@ void Aquarium::loadFishScenario()
 }
 
 // Load vertex and index buffers, textures and program for each model.
-void Aquarium::loadModel(const G_sceneInfo &info)
-{
+void Aquarium::loadModel(const G_sceneInfo &info) {
   const ResourceHelper *resourceHelper = mContext->getResourceHelper();
   std::string imagePath                = resourceHelper->getImagePath();
   std::string programPath              = resourceHelper->getProgramPath();
@@ -607,12 +509,9 @@ void Aquarium::loadModel(const G_sceneInfo &info)
 
   Model *model;
   if (toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEALPHABLENDING)) &&
-      info.type != MODELGROUP::INNER && info.type != MODELGROUP::OUTSIDE)
-  {
+      info.type != MODELGROUP::INNER && info.type != MODELGROUP::OUTSIDE) {
     model = mContext->createModel(this, info.type, info.name, true);
-  }
-  else
-  {
+  } else {
     model = mContext->createModel(this, info.type, info.name, info.blend);
   }
   mAquariumModels[info.name] = model;
@@ -622,13 +521,11 @@ void Aquarium::loadModel(const G_sceneInfo &info)
     // set up textures
     const rapidjson::Value &textures = value["textures"];
     for (rapidjson::Value::ConstMemberIterator itr = textures.MemberBegin();
-         itr != textures.MemberEnd(); ++itr)
-    {
+         itr != textures.MemberEnd(); ++itr) {
       std::string name  = itr->name.GetString();
       std::string image = itr->value.GetString();
 
-      if (mTextureMap.find(image) == mTextureMap.end())
-      {
+      if (mTextureMap.find(image) == mTextureMap.end()) {
         mTextureMap[image] = mContext->createTexture(name, imagePath + image);
       }
 
@@ -638,26 +535,20 @@ void Aquarium::loadModel(const G_sceneInfo &info)
     // set up vertices
     const rapidjson::Value &arrays = value["fields"];
     for (rapidjson::Value::ConstMemberIterator itr = arrays.MemberBegin();
-         itr != arrays.MemberEnd(); ++itr)
-    {
+         itr != arrays.MemberEnd(); ++itr) {
       std::string name  = itr->name.GetString();
       int numComponents = itr->value["numComponents"].GetInt();
       std::string type  = itr->value["type"].GetString();
       Buffer *buffer;
-      if (name == "indices")
-      {
+      if (name == "indices") {
         std::vector<unsigned short> vec;
-        for (auto &data : itr->value["data"].GetArray())
-        {
+        for (auto &data : itr->value["data"].GetArray()) {
           vec.push_back(data.GetInt());
         }
         buffer = mContext->createBuffer(numComponents, &vec, true);
-      }
-      else
-      {
+      } else {
         std::vector<float> vec;
-        for (auto &data : itr->value["data"].GetArray())
-        {
+        for (auto &data : itr->value["data"].GetArray()) {
           vec.push_back(data.GetFloat());
         }
         buffer = mContext->createBuffer(numComponents, &vec, false);
@@ -677,43 +568,30 @@ void Aquarium::loadModel(const G_sceneInfo &info)
     vsId = info.program[0];
     fsId = info.program[1];
 
-    if (vsId != "" && fsId != "")
-    {
+    if (vsId != "" && fsId != "") {
       model->textureMap["skybox"] = mTextureMap["skybox"];
-    }
-    else if (model->textureMap["reflection"] != nullptr)
-    {
+    } else if (model->textureMap["reflection"] != nullptr) {
       vsId = "reflectionMapVertexShader";
       fsId = "reflectionMapFragmentShader";
 
       model->textureMap["skybox"] = mTextureMap["skybox"];
-    }
-    else if (model->textureMap["normalMap"] != nullptr)
-    {
+    } else if (model->textureMap["normalMap"] != nullptr) {
       vsId = "normalMapVertexShader";
       fsId = "normalMapFragmentShader";
-    }
-    else
-    {
+    } else {
       vsId = "diffuseVertexShader";
       fsId = "diffuseFragmentShader";
     }
 
     Program *program;
-    if (mProgramMap.find(vsId + fsId) != mProgramMap.end())
-    {
+    if (mProgramMap.find(vsId + fsId) != mProgramMap.end()) {
       program = mProgramMap[vsId + fsId];
-    }
-    else
-    {
+    } else {
       program = mContext->createProgram(programPath + vsId, programPath + fsId);
       if (toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEALPHABLENDING)) &&
-          info.type != MODELGROUP::INNER && info.type != MODELGROUP::OUTSIDE)
-      {
+          info.type != MODELGROUP::INNER && info.type != MODELGROUP::OUTSIDE) {
         program->compileProgram(true, g.alpha);
-      }
-      else
-      {
+      } else {
         program->compileProgram(false, g.alpha);
       }
       mProgramMap[vsId + fsId] = program;
@@ -724,36 +602,24 @@ void Aquarium::loadModel(const G_sceneInfo &info)
   }
 }
 
-void Aquarium::calculateFishCount()
-{
+void Aquarium::calculateFishCount() {
   // Calculate fish count for each type of fish
   int numLeft = mCurFishCount;
-  for (int i = 0; i < FISHENUM::MAX; ++i)
-  {
-    for (auto &fishInfo : fishTable)
-    {
-      if (fishInfo.type != i)
-      {
+  for (int i = 0; i < FISHENUM::MAX; ++i) {
+    for (auto &fishInfo : fishTable) {
+      if (fishInfo.type != i) {
         continue;
       }
       int numfloat = numLeft;
-      if (i == FISHENUM::BIG)
-      {
+      if (i == FISHENUM::BIG) {
         int temp = mCurFishCount < g_numFishSmall ? 1 : 2;
         numfloat = std::min(numLeft, temp);
-      }
-      else if (i == FISHENUM::MEDIUM)
-      {
-        if (mCurFishCount < g_numFishMedium)
-        {
+      } else if (i == FISHENUM::MEDIUM) {
+        if (mCurFishCount < g_numFishMedium) {
           numfloat = std::min(numLeft, mCurFishCount / 10);
-        }
-        else if (mCurFishCount < g_numFishBig)
-        {
+        } else if (mCurFishCount < g_numFishBig) {
           numfloat = std::min(numLeft, g_numFishLeftSmall);
-        }
-        else
-        {
+        } else {
           numfloat = std::min(numLeft, g_numFishLeftBig);
         }
       }
@@ -763,8 +629,7 @@ void Aquarium::calculateFishCount()
   }
 }
 
-double Aquarium::getElapsedTime()
-{
+double Aquarium::getElapsedTime() {
   // Update our time
 #ifdef _WIN32
   double now = GetTickCount64() / 1000.0;
@@ -772,12 +637,9 @@ double Aquarium::getElapsedTime()
   double now = clock() / 1000000.0;
 #endif
   double elapsedTime = 0.0;
-  if (g.then == 0.0)
-  {
+  if (g.then == 0.0) {
     elapsedTime = 0.0;
-  }
-  else
-  {
+  } else {
     elapsedTime = now - g.then;
   }
   g.then = now;
@@ -785,19 +647,16 @@ double Aquarium::getElapsedTime()
   return elapsedTime;
 }
 
-void Aquarium::printAvgFps()
-{
+void Aquarium::printAvgFps() {
   int avg = mFpsTimer.variance();
 
   std::cout << "Avg FPS: " << avg << std::endl;
-  if (avg == 0)
-  {
+  if (avg == 0) {
     std::cout << "Invalid value. The fps is unstable." << std::endl;
   }
 }
 
-void Aquarium::updateGlobalUniforms()
-{
+void Aquarium::updateGlobalUniforms() {
   double elapsedTime   = getElapsedTime();
   double renderingTime = g.then - g.start;
 
@@ -857,8 +716,7 @@ void Aquarium::updateGlobalUniforms()
   mContext->updateWorldlUniforms(this);
 }
 
-void Aquarium::render()
-{
+void Aquarium::render() {
   matrix::resetPseudoRandom();
 
   mContext->preFrame();
@@ -866,27 +724,19 @@ void Aquarium::render()
   // Global Uniforms should update after command reallocation.
   updateGlobalUniforms();
 
-  if (toggleBitset.test(static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO)))
-  {
-    if (!mFishBehavior.empty())
-    {
+  if (toggleBitset.test(static_cast<size_t>(TOGGLE::SIMULATINGFISHCOMEANDGO))) {
+    if (!mFishBehavior.empty()) {
       Behavior *behave = mFishBehavior.front();
       int frame        = behave->getFrame();
-      if (frame == 0)
-      {
+      if (frame == 0) {
         mFishBehavior.pop();
-        if (behave->getOp() == "+")
-        {
+        if (behave->getOp() == "+") {
           mCurFishCount += behave->getCount();
-        }
-        else
-        {
+        } else {
           mCurFishCount -= behave->getCount();
         }
         std::cout << "Fish count" << mCurFishCount << std::endl;
-      }
-      else
-      {
+      } else {
         behave->setFrame(--frame);
       }
     }
@@ -897,8 +747,7 @@ void Aquarium::render()
   // To try this functionality now, use composition of "--backend dawn_xxx", or
   // "--backend dawn_xxx --disable-dyanmic-buffer-offset"
   if (!toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEINSTANCEDDRAWS)))
-    if (mCurFishCount != mPreFishCount)
-    {
+    if (mCurFishCount != mPreFishCount) {
       calculateFishCount();
       bool enableDynamicBufferOffset = toggleBitset.test(
           static_cast<size_t>(TOGGLE::ENABLEDYNAMICBUFFEROFFSET));
@@ -912,14 +761,11 @@ void Aquarium::render()
   bool updateAndDrawForEachFish =
       toggleBitset.test(static_cast<size_t>(TOGGLE::UPATEANDDRAWFOREACHMODEL));
 
-  if (updateAndDrawForEachFish)
-  {
+  if (updateAndDrawForEachFish) {
     updateAndDrawBackground();
     updateAndDrawFishes();
     mContext->updateFPS(mFpsTimer, &mCurFishCount, &toggleBitset);
-  }
-  else
-  {
+  } else {
     updateBackground();
     updateFishes();
     mContext->updateFPS(mFpsTimer, &mCurFishCount, &toggleBitset);
@@ -935,28 +781,23 @@ void Aquarium::render()
   }
 }
 
-void Aquarium::updateAndDrawBackground()
-{
+void Aquarium::updateAndDrawBackground() {
   Model *model = mAquariumModels[MODELNAME::MODELRUINCOlOMN];
-  for (int i = MODELNAME::MODELRUINCOlOMN; i <= MODELNAME::MODELSEAWEEDB; ++i)
-  {
+  for (int i = MODELNAME::MODELRUINCOlOMN; i <= MODELNAME::MODELSEAWEEDB; ++i) {
     model = mAquariumModels[i];
     updateWorldMatrixAndDraw(model);
   }
 }
 
-void Aquarium::drawBackground()
-{
+void Aquarium::drawBackground() {
   Model *model = mAquariumModels[MODELNAME::MODELRUINCOlOMN];
-  for (int i = MODELNAME::MODELRUINCOlOMN; i <= MODELNAME::MODELSEAWEEDB; ++i)
-  {
+  for (int i = MODELNAME::MODELRUINCOlOMN; i <= MODELNAME::MODELSEAWEEDB; ++i) {
     model = mAquariumModels[i];
     model->draw();
   }
 }
 
-void Aquarium::updateAndDrawFishes()
-{
+void Aquarium::updateAndDrawFishes() {
   int begin =
       toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEINSTANCEDDRAWS))
           ? MODELNAME::MODELSMALLFISHAINSTANCEDDRAWS
@@ -965,8 +806,7 @@ void Aquarium::updateAndDrawFishes()
                 ? MODELNAME::MODELBIGFISHBINSTANCEDDRAWS
                 : MODELNAME::MODELBIGFISHB;
 
-  for (int i = begin; i <= end; ++i)
-  {
+  for (int i = begin; i <= end; ++i) {
     FishModel *model = static_cast<FishModel *>(mAquariumModels[i]);
 
     const Fish &fishInfo = fishTable[i - begin];
@@ -988,8 +828,7 @@ void Aquarium::updateAndDrawFishes()
     float fishYClock      = g_fishYClock;
     float fishZClock      = g_fishZClock;
 
-    for (int ii = 0; ii < numFish; ++ii)
-    {
+    for (int ii = 0; ii < numFish; ++ii) {
       float fishClock = fishBaseClock + ii * fishOffset;
       float speed     = fishSpeed +
                     static_cast<float>(matrix::pseudoRandom()) * fishSpeedRange;
@@ -1020,18 +859,15 @@ void Aquarium::updateAndDrawFishes()
   }
 }
 
-void Aquarium::updateBackground()
-{
+void Aquarium::updateBackground() {
   Model *model = mAquariumModels[MODELNAME::MODELRUINCOlOMN];
-  for (int i = MODELNAME::MODELRUINCOlOMN; i <= MODELNAME::MODELSEAWEEDB; ++i)
-  {
+  for (int i = MODELNAME::MODELRUINCOlOMN; i <= MODELNAME::MODELSEAWEEDB; ++i) {
     model = mAquariumModels[i];
     updateWorldMatrix(model);
   }
 }
 
-void Aquarium::updateFishes()
-{
+void Aquarium::updateFishes() {
   int begin =
       toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEINSTANCEDDRAWS))
           ? MODELNAME::MODELSMALLFISHAINSTANCEDDRAWS
@@ -1040,8 +876,7 @@ void Aquarium::updateFishes()
                 ? MODELNAME::MODELBIGFISHBINSTANCEDDRAWS
                 : MODELNAME::MODELBIGFISHB;
 
-  for (int i = begin; i <= end; ++i)
-  {
+  for (int i = begin; i <= end; ++i) {
     FishModel *model = static_cast<FishModel *>(mAquariumModels[i]);
 
     const Fish &fishInfo = fishTable[i - begin];
@@ -1063,8 +898,7 @@ void Aquarium::updateFishes()
     float fishYClock      = g_fishYClock;
     float fishZClock      = g_fishZClock;
 
-    for (int ii = 0; ii < numFish; ++ii)
-    {
+    for (int ii = 0; ii < numFish; ++ii) {
       float fishClock = fishBaseClock + ii * fishOffset;
       float speed     = fishSpeed +
                     static_cast<float>(matrix::pseudoRandom()) * fishSpeedRange;
@@ -1094,8 +928,7 @@ void Aquarium::updateFishes()
   mContext->updateAllFishData();
 }
 
-void Aquarium::drawFishes()
-{
+void Aquarium::drawFishes() {
   int begin =
       toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEINSTANCEDDRAWS))
           ? MODELNAME::MODELSMALLFISHAINSTANCEDDRAWS
@@ -1104,15 +937,13 @@ void Aquarium::drawFishes()
                 ? MODELNAME::MODELBIGFISHBINSTANCEDDRAWS
                 : MODELNAME::MODELBIGFISHB;
 
-  for (int i = begin; i <= end; ++i)
-  {
+  for (int i = begin; i <= end; ++i) {
     FishModel *model = static_cast<FishModel *>(mAquariumModels[i]);
     model->draw();
   }
 }
 
-void Aquarium::updateWorldProjections(const std::vector<float> &w)
-{
+void Aquarium::updateWorldProjections(const std::vector<float> &w) {
   ASSERT(w.size() == 16);
   memcpy(worldUniforms.world, w.data(), 16 * sizeof(float));
   matrix::mulMatrixMatrix4(worldUniforms.worldViewProjection,
@@ -1122,12 +953,9 @@ void Aquarium::updateWorldProjections(const std::vector<float> &w)
   matrix::transpose4(worldUniforms.worldInverseTranspose, g.worldInverse);
 }
 
-void Aquarium::updateWorldMatrixAndDraw(Model *model)
-{
-  if (model->worldmatrices.size())
-  {
-    for (auto &world : model->worldmatrices)
-    {
+void Aquarium::updateWorldMatrixAndDraw(Model *model) {
+  if (model->worldmatrices.size()) {
+    for (auto &world : model->worldmatrices) {
       updateWorldProjections(world);
       model->prepareForDraw();
       model->updatePerInstanceUniforms(worldUniforms);
@@ -1136,12 +964,9 @@ void Aquarium::updateWorldMatrixAndDraw(Model *model)
   }
 }
 
-void Aquarium::updateWorldMatrix(Model *model)
-{
-  if (model->worldmatrices.size())
-  {
-    for (auto &world : model->worldmatrices)
-    {
+void Aquarium::updateWorldMatrix(Model *model) {
+  if (model->worldmatrices.size()) {
+    for (auto &world : model->worldmatrices) {
       updateWorldProjections(world);
       model->updatePerInstanceUniforms(worldUniforms);
     }

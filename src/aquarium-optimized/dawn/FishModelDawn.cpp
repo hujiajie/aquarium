@@ -16,8 +16,7 @@ FishModelDawn::FishModelDawn(Context *context,
                              MODELGROUP type,
                              MODELNAME name,
                              bool blend)
-    : FishModel(type, name, blend, aquarium)
-{
+    : FishModel(type, name, blend, aquarium) {
   mContextDawn = static_cast<ContextDawn *>(context);
 
   mEnableDynamicBufferOffset = aquarium->toggleBitset.test(
@@ -36,8 +35,7 @@ FishModelDawn::FishModelDawn(Context *context,
   mPreInstance = mCurInstance;
 }
 
-void FishModelDawn::init()
-{
+void FishModelDawn::init() {
   mProgramDawn = static_cast<ProgramDawn *>(mProgram);
 
   mDiffuseTexture    = static_cast<TextureDawn *>(textureMap["diffuse"]);
@@ -95,8 +93,7 @@ void FishModelDawn::init()
   mVertexStateDescriptor.vertexBufferCount = 5;
   mVertexStateDescriptor.indexFormat       = wgpu::IndexFormat::Uint16;
 
-  if (mSkyboxTexture && mReflectionTexture)
-  {
+  if (mSkyboxTexture && mReflectionTexture) {
     mGroupLayoutModel = mContextDawn->MakeBindGroupLayout({
         {0, wgpu::ShaderStage::Vertex, wgpu::BindingType::UniformBuffer},
         {1, wgpu::ShaderStage::Fragment, wgpu::BindingType::UniformBuffer},
@@ -115,9 +112,7 @@ void FishModelDawn::init()
          false, false, wgpu::TextureViewDimension::Cube,
          wgpu::TextureComponentType::Float},
     });
-  }
-  else
-  {
+  } else {
     mGroupLayoutModel = mContextDawn->MakeBindGroupLayout({
         {0, wgpu::ShaderStage::Vertex, wgpu::BindingType::UniformBuffer},
         {1, wgpu::ShaderStage::Fragment, wgpu::BindingType::UniformBuffer},
@@ -150,8 +145,7 @@ void FishModelDawn::init()
 
   // Fish models includes small, medium and big. Some of them contains
   // reflection and skybox texture, but some doesn't.
-  if (mSkyboxTexture && mReflectionTexture)
-  {
+  if (mSkyboxTexture && mReflectionTexture) {
     mBindGroupModel = mContextDawn->makeBindGroup(
         mGroupLayoutModel,
         {{0, mFishVertexBuffer, 0, sizeof(FishVertexUniforms)},
@@ -162,9 +156,7 @@ void FishModelDawn::init()
          {5, mNormalTexture->getTextureView()},
          {6, mReflectionTexture->getTextureView()},
          {7, mSkyboxTexture->getTextureView()}});
-  }
-  else
-  {
+  } else {
     mBindGroupModel = mContextDawn->makeBindGroup(
         mGroupLayoutModel,
         {{0, mFishVertexBuffer, 0, sizeof(FishVertexUniforms)},
@@ -181,8 +173,7 @@ void FishModelDawn::init()
                               &mFishVertexUniforms);
 }
 
-void FishModelDawn::draw()
-{
+void FishModelDawn::draw() {
   if (mCurInstance == 0)
     return;
 
@@ -198,19 +189,14 @@ void FishModelDawn::draw()
   pass.SetVertexBuffer(4, mBiNormalBuffer->getBuffer());
   pass.SetIndexBuffer(mIndicesBuffer->getBuffer(), 0);
 
-  if (mEnableDynamicBufferOffset)
-  {
-    for (int i = 0; i < mCurInstance; i++)
-    {
+  if (mEnableDynamicBufferOffset) {
+    for (int i = 0; i < mCurInstance; i++) {
       uint32_t offset = 256u * (i + mFishPerOffset);
       pass.SetBindGroup(3, mContextDawn->bindGroupFishPers[0], 1, &offset);
       pass.DrawIndexed(mIndicesBuffer->getTotalComponents(), 1, 0, 0, 0);
     }
-  }
-  else
-  {
-    for (int i = 0; i < mCurInstance; i++)
-    {
+  } else {
+    for (int i = 0; i < mCurInstance; i++) {
       pass.SetBindGroup(3, mContextDawn->bindGroupFishPers[i + mFishPerOffset],
                         0, nullptr);
       pass.DrawIndexed(mIndicesBuffer->getTotalComponents(), 1, 0, 0, 0);
@@ -219,8 +205,7 @@ void FishModelDawn::draw()
 }
 
 void FishModelDawn::updatePerInstanceUniforms(
-    const WorldUniforms &worldUniforms)
-{
+    const WorldUniforms &worldUniforms) {
 }
 
 void FishModelDawn::updateFishPerUniforms(float x,
@@ -231,8 +216,7 @@ void FishModelDawn::updateFishPerUniforms(float x,
                                           float nextZ,
                                           float scale,
                                           float time,
-                                          int index)
-{
+                                          int index) {
   index += mFishPerOffset;
   mContextDawn->fishPers[index].worldPosition[0] = x;
   mContextDawn->fishPers[index].worldPosition[1] = y;
@@ -244,8 +228,7 @@ void FishModelDawn::updateFishPerUniforms(float x,
   mContextDawn->fishPers[index].time             = time;
 }
 
-FishModelDawn::~FishModelDawn()
-{
+FishModelDawn::~FishModelDawn() {
   mPipeline          = nullptr;
   mGroupLayoutModel  = nullptr;
   mPipelineLayout    = nullptr;

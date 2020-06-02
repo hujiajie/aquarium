@@ -31,10 +31,8 @@ const CD3DX12_HEAP_PROPERTIES defaultheapProperties =
 const CD3DX12_HEAP_PROPERTIES uploadheapProperties =
     CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
 
-inline void ThrowIfFailed(HRESULT hr)
-{
-  if (FAILED(hr))
-  {
+inline void ThrowIfFailed(HRESULT hr) {
+  if (FAILED(hr)) {
     printf("D3D12 backend failed: file \"%s\", line %d\n", __FILE__, __LINE__);
   }
 }
@@ -64,10 +62,8 @@ ContextD3D12::ContextD3D12(BACKENDTYPE backendType)
       mSceneRenderTargetView({}),
       mEnableMSAA(false),
       mVsync(1u),
-      mDisableD3D12RenderPass(false)
-{
-  for (UINT n = 0; n < mFrameCount; n++)
-  {
+      mDisableD3D12RenderPass(false) {
+  for (UINT n = 0; n < mFrameCount; n++) {
     mBufferSerias[n] = 0;
   }
 
@@ -75,11 +71,9 @@ ContextD3D12::ContextD3D12(BACKENDTYPE backendType)
   initAvailableToggleBitset(backendType);
 }
 
-ContextD3D12::~ContextD3D12()
-{
+ContextD3D12::~ContextD3D12() {
   delete mResourceHelper;
-  if (!mDisableControlPanel)
-  {
+  if (!mDisableControlPanel) {
     destoryImgUI();
   }
   destoryFishResource();
@@ -89,16 +83,14 @@ bool ContextD3D12::initialize(
     BACKENDTYPE backend,
     const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset,
     int windowWidth,
-    int windowHeight)
-{
+    int windowHeight) {
   mEnableMSAA = toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEMSAAx4));
   mVsync = toggleBitset.test(static_cast<size_t>(TOGGLE::TURNOFFVSYNC)) ? 0 : 1;
   mDisableControlPanel =
       toggleBitset.test(static_cast<TOGGLE>(TOGGLE::DISABLECONTROLPANEL));
 
   // initialise GLFW
-  if (!glfwInit())
-  {
+  if (!glfwInit()) {
     std::cout << "Failed to initialise GLFW" << std::endl;
     return false;
   }
@@ -115,19 +107,15 @@ bool ContextD3D12::initialize(
 
   setWindowSize(windowWidth, windowHeight);
 
-  if (toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEFULLSCREENMODE)))
-  {
+  if (toggleBitset.test(static_cast<size_t>(TOGGLE::ENABLEFULLSCREENMODE))) {
     mWindow = glfwCreateWindow(mClientWidth, mClientHeight, "Aquarium",
                                pMonitor, nullptr);
-  }
-  else
-  {
+  } else {
     mWindow = glfwCreateWindow(mClientWidth, mClientHeight, "Aquarium", nullptr,
                                nullptr);
   }
 
-  if (mWindow == nullptr)
-  {
+  if (mWindow == nullptr) {
     std::cout << "Failed to open GLFW window." << std::endl;
     glfwTerminate();
     return false;
@@ -145,8 +133,7 @@ bool ContextD3D12::initialize(
   // active mDevice.
   {
     ComPtr<ID3D12Debug> debugController;
-    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
-    {
+    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
       debugController->EnableDebugLayer();
 
       // Enable additional debug layers.
@@ -220,8 +207,7 @@ bool ContextD3D12::initialize(
     rtvHandle = mRtvHeap->GetCPUDescriptorHandleForHeapStart();
 
     // Create a RTV for each frame.
-    for (UINT n = 0; n < mFrameCount; n++)
-    {
+    for (UINT n = 0; n < mFrameCount; n++) {
       ThrowIfFailed(mSwapChain->GetBuffer(n, IID_PPV_ARGS(&mRenderTargets[n])));
       mDevice->CreateRenderTargetView(mRenderTargets[n].Get(), nullptr,
                                       rtvHandle);
@@ -254,8 +240,7 @@ bool ContextD3D12::initialize(
   cbvsrvGPUHandle = mCbvsrvHeap->GetGPUDescriptorHandleForHeapStart();
 
   // Init 3 command allocators for 3 back buffers
-  for (UINT n = 0; n < mFrameCount; n++)
-  {
+  for (UINT n = 0; n < mFrameCount; n++) {
     ThrowIfFailed(mDevice->CreateCommandAllocator(
         D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&mCommandAllocators[n])));
   }
@@ -270,8 +255,7 @@ bool ContextD3D12::initialize(
       !getRenderPassesTier(mDevice.Get()) ||
       toggleBitset.test(static_cast<size_t>(TOGGLE::DISABLED3D12RENDERPASS));
 
-  if (mEnableMSAA)
-  {
+  if (mEnableMSAA) {
     D3D12_RESOURCE_DESC textureDesc = {};
     textureDesc.MipLevels           = 1;
     textureDesc.Format              = mPreferredSwapChainFormat;
@@ -297,8 +281,7 @@ bool ContextD3D12::initialize(
   }
   createDepthStencilView();
 
-  if (!mDisableControlPanel)
-  {
+  if (!mDisableControlPanel) {
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -327,8 +310,7 @@ bool ContextD3D12::initialize(
 bool ContextD3D12::GetHardwareAdapter(
     IDXGIFactory2 *pFactory,
     IDXGIAdapter1 **ppAdapter,
-    const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset)
-{
+    const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset) {
   ComPtr<IDXGIAdapter1> adapter;
   *ppAdapter = nullptr;
 
@@ -341,25 +323,21 @@ bool ContextD3D12::GetHardwareAdapter(
 
   for (UINT adapterIndex = 0;
        DXGI_ERROR_NOT_FOUND != pFactory->EnumAdapters1(adapterIndex, &adapter);
-       ++adapterIndex)
-  {
+       ++adapterIndex) {
     DXGI_ADAPTER_DESC1 desc;
     adapter->GetDesc1(&desc);
 
     if (useDefaultGpu ||
         (enableDiscreteGpu &&
          (desc.VendorId == 0x10DE || desc.VendorId == 0x1002)) ||
-        (enableIntegratedGpu && desc.VendorId == 0x8086))
-    {
-      if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE)
-      {
+        (enableIntegratedGpu && desc.VendorId == 0x8086)) {
+      if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) {
         // Don't select the Basic Render Driver adapter.
         continue;
       }
 
       if (SUCCEEDED(D3D12CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_11_0,
-                                      _uuidof(ID3D12Device), nullptr)))
-      {
+                                      _uuidof(ID3D12Device), nullptr))) {
         std::wstring str     = desc.Description;
         std::string renderer = std::string(str.begin(), str.end());
         std::cout << renderer << std::endl;
@@ -371,41 +349,35 @@ bool ContextD3D12::GetHardwareAdapter(
   }
 
   *ppAdapter = adapter.Detach();
-  if (ppAdapter == nullptr)
-  {
+  if (ppAdapter == nullptr) {
     std::cerr << "Failed to create adapter." << std::endl;
     return false;
   }
   return true;
 }
 
-void ContextD3D12::setWindowTitle(const std::string &text)
-{
+void ContextD3D12::setWindowTitle(const std::string &text) {
   glfwSetWindowTitle(mWindow, text.c_str());
 }
 
-bool ContextD3D12::ShouldQuit()
-{
+bool ContextD3D12::ShouldQuit() {
   return glfwWindowShouldClose(mWindow);
 }
 
-void ContextD3D12::KeyBoardQuit()
-{
+void ContextD3D12::KeyBoardQuit() {
   if (glfwGetKey(mWindow, GLFW_KEY_ESCAPE) == GLFW_PRESS)
     glfwSetWindowShouldClose(mWindow, GLFW_TRUE);
 }
 
 void ContextD3D12::stateTransition(ComPtr<ID3D12Resource> resource,
                                    D3D12_RESOURCE_STATES preState,
-                                   D3D12_RESOURCE_STATES transferState) const
-{
+                                   D3D12_RESOURCE_STATES transferState) const {
   CD3DX12_RESOURCE_BARRIER barrier = CD3DX12_RESOURCE_BARRIER::Transition(
       resource.Get(), preState, transferState);
   mCommandList->ResourceBarrier(1, &barrier);
 }
 
-void ContextD3D12::initAvailableToggleBitset(BACKENDTYPE backendType)
-{
+void ContextD3D12::initAvailableToggleBitset(BACKENDTYPE backendType) {
   mAvailableToggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEMSAAx4));
   mAvailableToggleBitset.set(static_cast<size_t>(TOGGLE::ENABLEINSTANCEDDRAWS));
   mAvailableToggleBitset.set(static_cast<size_t>(TOGGLE::DISCRETEGPU));
@@ -417,13 +389,10 @@ void ContextD3D12::initAvailableToggleBitset(BACKENDTYPE backendType)
 }
 
 void ContextD3D12::DoFlush(
-    const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset)
-{
-  if (mDisableD3D12RenderPass)
-  {
+    const std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> &toggleBitset) {
+  if (mDisableD3D12RenderPass) {
     // Resolve MSAA texture to non MSAA texture, and then present.
-    if (mEnableMSAA)
-    {
+    if (mEnableMSAA) {
       stateTransition(mSceneRenderTargetTexture,
                       D3D12_RESOURCE_STATE_RENDER_TARGET,
                       D3D12_RESOURCE_STATE_RESOLVE_SOURCE);
@@ -440,9 +409,7 @@ void ContextD3D12::DoFlush(
       stateTransition(mRenderTargets[m_frameIndex],
                       D3D12_RESOURCE_STATE_RESOLVE_DEST,
                       D3D12_RESOURCE_STATE_COMMON);
-    }
-    else
-    {
+    } else {
       stateTransition(mRenderTargets[m_frameIndex],
                       D3D12_RESOURCE_STATE_RENDER_TARGET,
                       D3D12_RESOURCE_STATE_COMMON);
@@ -454,19 +421,15 @@ void ContextD3D12::DoFlush(
     ID3D12CommandList *ppCommandLists[] = {mCommandList.Get()};
     mCommandQueue->ExecuteCommandLists(_countof(ppCommandLists),
                                        ppCommandLists);
-  }
-  else  // Enable D3D12 Render Pass
+  } else  // Enable D3D12 Render Pass
   {
     mCommandList->EndRenderPass();
 
-    if (mEnableMSAA)
-    {
+    if (mEnableMSAA) {
       stateTransition(mRenderTargets[m_frameIndex],
                       D3D12_RESOURCE_STATE_RESOLVE_DEST,
                       D3D12_RESOURCE_STATE_COMMON);
-    }
-    else
-    {
+    } else {
       stateTransition(mRenderTargets[m_frameIndex],
                       D3D12_RESOURCE_STATE_RENDER_TARGET,
                       D3D12_RESOURCE_STATE_COMMON);
@@ -488,8 +451,7 @@ void ContextD3D12::DoFlush(
   glfwPollEvents();
 }
 
-void ContextD3D12::Flush()
-{
+void ContextD3D12::Flush() {
   // Close the command list and execute it to begin the initial GPU setup.
   ThrowIfFailed(mCommandList->Close());
   ID3D12CommandList *ppCommandLists[] = {mCommandList.Get()};
@@ -503,8 +465,7 @@ void ContextD3D12::Flush()
 
     // Create an event handle to use for frame synchronization.
     mFenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-    if (mFenceEvent == nullptr)
-    {
+    if (mFenceEvent == nullptr) {
       ThrowIfFailed(HRESULT_FROM_WIN32(GetLastError()));
     }
 
@@ -515,20 +476,15 @@ void ContextD3D12::Flush()
   }
 }
 
-void ContextD3D12::Terminate()
-{
+void ContextD3D12::Terminate() {
   UINT lastSerias = 0;
-  if (m_frameIndex == 0)
-  {
+  if (m_frameIndex == 0) {
     lastSerias = mBufferSerias[2];
-  }
-  else
-  {
+  } else {
     lastSerias = mBufferSerias[m_frameIndex - 1];
   }
 
-  if (mFence->GetCompletedValue() < lastSerias)
-  {
+  if (mFence->GetCompletedValue() < lastSerias) {
     ThrowIfFailed(mFence->SetEventOnCompletion(lastSerias, mFenceEvent));
     WaitForSingleObject(mFenceEvent, INFINITE);
   }
@@ -536,18 +492,15 @@ void ContextD3D12::Terminate()
   glfwTerminate();
 }
 
-void ContextD3D12::showWindow()
-{
+void ContextD3D12::showWindow() {
   glfwShowWindow(mWindow);
 }
 
 void ContextD3D12::updateFPS(
     const FPSTimer &fpsTimer,
     int *fishCount,
-    std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> *toggleBitset)
-{
-  if (mDisableControlPanel)
-  {
+    std::bitset<static_cast<size_t>(TOGGLE::TOGGLEMAX)> *toggleBitset) {
+  if (mDisableControlPanel) {
     return;
   }
 
@@ -559,25 +512,21 @@ void ContextD3D12::updateFPS(
   ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), mCommandList.Get());
 }
 
-void ContextD3D12::showFPS()
-{
-  if (mDisableControlPanel)
-  {
+void ContextD3D12::showFPS() {
+  if (mDisableControlPanel) {
     return;
   }
 
   ImGui_ImplDX12_Draw(ImGui::GetDrawData(), mCommandList.Get());
 }
 
-void ContextD3D12::destoryImgUI()
-{
+void ContextD3D12::destoryImgUI() {
   ImGui_ImplDX12_Shutdown();
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
 }
 
-void ContextD3D12::preFrame()
-{
+void ContextD3D12::preFrame() {
   // Reuse the memory associated with command recording.
   // We can only reset when the associated command lists have finished execution
   // on the GPU.
@@ -627,11 +576,9 @@ void ContextD3D12::preFrame()
 Model *ContextD3D12::createModel(Aquarium *aquarium,
                                  MODELGROUP type,
                                  MODELNAME name,
-                                 bool blend)
-{
+                                 bool blend) {
   Model *model;
-  switch (type)
-  {
+  switch (type) {
   case MODELGROUP::FISH:
     model = new FishModelD3D12(this, aquarium, type, name, blend);
     break;
@@ -660,8 +607,7 @@ Model *ContextD3D12::createModel(Aquarium *aquarium,
 
 Buffer *ContextD3D12::createBuffer(int numComponents,
                                    std::vector<float> *buf,
-                                   bool isIndex)
-{
+                                   bool isIndex) {
   Buffer *buffer = new BufferD3D12(this, static_cast<int>(buf->size()),
                                    numComponents, *buf, isIndex);
   return buffer;
@@ -669,39 +615,34 @@ Buffer *ContextD3D12::createBuffer(int numComponents,
 
 Buffer *ContextD3D12::createBuffer(int numComponents,
                                    std::vector<unsigned short> *buf,
-                                   bool isIndex)
-{
+                                   bool isIndex) {
   Buffer *buffer = new BufferD3D12(this, static_cast<int>(buf->size()),
                                    numComponents, *buf, isIndex);
   return buffer;
 }
 
 Program *ContextD3D12::createProgram(const std::string &mVId,
-                                     const std::string &mFId)
-{
+                                     const std::string &mFId) {
   ProgramD3D12 *program = new ProgramD3D12(this, mVId, mFId);
 
   return program;
 }
 
 Texture *ContextD3D12::createTexture(const std::string &name,
-                                     const std::string &url)
-{
+                                     const std::string &url) {
   Texture *texture = new TextureD3D12(this, name, url);
   texture->loadTexture();
   return texture;
 }
 
 Texture *ContextD3D12::createTexture(const std::string &name,
-                                     const std::vector<std::string> &urls)
-{
+                                     const std::vector<std::string> &urls) {
   Texture *texture = new TextureD3D12(this, name, urls);
   texture->loadTexture();
   return texture;
 }
 
-void ContextD3D12::initGeneralResources(Aquarium *aquarium)
-{
+void ContextD3D12::initGeneralResources(Aquarium *aquarium) {
   // create common constant buffer, desc and view.
   mLightBuffer = createDefaultBuffer(
       &aquarium->lightUniforms,
@@ -779,8 +720,7 @@ void ContextD3D12::updateConstantBufferSync(
     ComPtr<ID3D12Resource> defaultBuffer,
     const ComPtr<ID3D12Resource> uploadBuffer,
     const void *initData,
-    UINT64 byteSize)
-{
+    UINT64 byteSize) {
   // Describe the data we want to copy into the default buffer.
   D3D12_SUBRESOURCE_DATA subResourceData = {};
   subResourceData.pData                  = initData;
@@ -799,38 +739,33 @@ void ContextD3D12::updateConstantBufferSync(
                   D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
 }
 
-void ContextD3D12::updateWorldlUniforms(Aquarium *aquarium)
-{
+void ContextD3D12::updateWorldlUniforms(Aquarium *aquarium) {
   updateConstantBufferSync(
       mLightWorldPositionBuffer, mLightWorldPositionUploadBuffer,
       &aquarium->lightWorldPositionUniform,
       CalcConstantBufferByteSize(sizeof(LightWorldPositionUniform)));
 }
 
-ComPtr<ID3DBlob> ContextD3D12::createShaderModule(const std::string &type,
-                                                  const std::string &shaderStr)
-{
+ComPtr<ID3DBlob> ContextD3D12::createShaderModule(
+    const std::string &type,
+    const std::string &shaderStr) {
   ComPtr<ID3DBlob> shader;
   ComPtr<ID3DBlob> errors;
   HRESULT hr;
 
-  if (type == "VS")
-  {
+  if (type == "VS") {
     hr = (D3DCompile(shaderStr.c_str(), shaderStr.length(), nullptr, nullptr,
                      nullptr, "main", "vs_5_1", mCompileFlags, 0, &shader,
                      &errors));
-  }
-  else  // "FS"
+  } else  // "FS"
   {
     hr = (D3DCompile(shaderStr.c_str(), shaderStr.length(), nullptr, nullptr,
                      nullptr, "main", "ps_5_1", mCompileFlags, 0, &shader,
                      &errors));
   }
 
-  if (FAILED(hr))
-  {
-    if (nullptr != errors)
-    {
+  if (FAILED(hr)) {
+    if (nullptr != errors) {
       std::cerr << ((char *)errors->GetBufferPointer());
       errors->Release();
     }
@@ -843,12 +778,10 @@ void ContextD3D12::createCommittedResource(
     const D3D12_HEAP_PROPERTIES &properties,
     const D3D12_RESOURCE_DESC &desc,
     D3D12_RESOURCE_STATES state,
-    ComPtr<ID3D12Resource> &resource)
-{
+    ComPtr<ID3D12Resource> &resource) {
   if (FAILED(mDevice->CreateCommittedResource(&properties, D3D12_HEAP_FLAG_NONE,
                                               &desc, state, nullptr,
-                                              IID_PPV_ARGS(&resource))))
-  {
+                                              IID_PPV_ARGS(&resource)))) {
     std::cout << "failed to create Resource" << std::endl;
   }
 }
@@ -859,21 +792,19 @@ void ContextD3D12::updateSubresources(ID3D12GraphicsCommandList *pCmdList,
                                       UINT64 IntermediateOffset,
                                       UINT FirstSubresource,
                                       UINT NumSubresources,
-                                      D3D12_SUBRESOURCE_DATA *pSrcData)
-{
+                                      D3D12_SUBRESOURCE_DATA *pSrcData) {
   UpdateSubresources(pCmdList, pDestinationResource, pIntermediate,
                      IntermediateOffset, FirstSubresource, NumSubresources,
                      pSrcData);
 }
 
-void ContextD3D12::executeCommandLists(UINT NumCommandLists,
-                                       ID3D12CommandList *const *ppCommandLists)
-{
+void ContextD3D12::executeCommandLists(
+    UINT NumCommandLists,
+    ID3D12CommandList *const *ppCommandLists) {
   mCommandQueue->ExecuteCommandLists(NumCommandLists, ppCommandLists);
 }
 
-void ContextD3D12::WaitForPreviousFrame()
-{
+void ContextD3D12::WaitForPreviousFrame() {
   mFenceValue++;
   // Signal and increment the fence value.
   const UINT64 fence = mFenceValue;
@@ -884,8 +815,7 @@ void ContextD3D12::WaitForPreviousFrame()
   // Wait until the previous before previous frame is finished.
   int prepreIndex   = (m_frameIndex + 1) % 3;
   UINT prepreSerias = mBufferSerias[prepreIndex];
-  if (mFence->GetCompletedValue() < prepreSerias)
-  {
+  if (mFence->GetCompletedValue() < prepreSerias) {
     ThrowIfFailed(mFence->SetEventOnCompletion(fence, mFenceEvent));
     WaitForSingleObject(mFenceEvent, INFINITE);
   }
@@ -894,16 +824,14 @@ void ContextD3D12::WaitForPreviousFrame()
   m_frameIndex = mSwapChain->GetCurrentBackBufferIndex();
 }
 
-void ContextD3D12::FlushPreviousFrames()
-{
+void ContextD3D12::FlushPreviousFrames() {
   mFenceValue++;
   // Signal and increment the fence value.
   const UINT64 fence = mFenceValue;
   ThrowIfFailed(mCommandQueue->Signal(mFence.Get(), fence));
   mBufferSerias[m_frameIndex] = mFenceValue;
 
-  if (mFence->GetCompletedValue() < mFenceValue)
-  {
+  if (mFence->GetCompletedValue() < mFenceValue) {
     ThrowIfFailed(mFence->SetEventOnCompletion(fence, mFenceEvent));
     WaitForSingleObject(mFenceEvent, INFINITE);
   }
@@ -912,41 +840,35 @@ void ContextD3D12::FlushPreviousFrames()
   m_frameIndex = mSwapChain->GetCurrentBackBufferIndex();
 }
 
-void ContextD3D12::updateAllFishData()
-{
+void ContextD3D12::updateAllFishData() {
   // TODO(yizhou): Split data updating and render pass.
   updateConstantBufferSync(
       mFishPersBuffer, stagingBuffer, fishPers,
       CalcConstantBufferByteSize(sizeof(FishPer) * mCurTotalInstance));
 }
 
-void ContextD3D12::checkRootSignatureSupport()
-{
+void ContextD3D12::checkRootSignatureSupport() {
   mRootSignature.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_1;
 
   if (FAILED(mDevice->CheckFeatureSupport(D3D12_FEATURE_ROOT_SIGNATURE,
                                           &mRootSignature,
-                                          sizeof(mRootSignature))))
-  {
+                                          sizeof(mRootSignature)))) {
     mRootSignature.HighestVersion = D3D_ROOT_SIGNATURE_VERSION_1_0;
   }
 }
 
-bool ContextD3D12::getRenderPassesTier(ID3D12Device *device)
-{
+bool ContextD3D12::getRenderPassesTier(ID3D12Device *device) {
   D3D12_FEATURE_DATA_D3D12_OPTIONS5 featureSupport{};
   if (SUCCEEDED(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5,
                                             &featureSupport,
-                                            sizeof(featureSupport))))
-  {
+                                            sizeof(featureSupport)))) {
     std::cout << "RenderPass Tier " << featureSupport.RenderPassesTier
               << " supported." << std::endl;
   }
   return true;
 }
 
-void ContextD3D12::beginRenderPass()
-{
+void ContextD3D12::beginRenderPass() {
   // Reuse the memory associated with command recording.
   // We can only reset when the associated command lists have finished execution
   // on the GPU. ThrowIfFailed(mCommandAllocators[m_frameIndex]->Reset());
@@ -962,25 +884,20 @@ void ContextD3D12::beginRenderPass()
   CD3DX12_CPU_DESCRIPTOR_HANDLE rtvHandle;
   CD3DX12_CPU_DESCRIPTOR_HANDLE dsvHandle;
 
-  if (mEnableMSAA)
-  {
+  if (mEnableMSAA) {
     // Set MSAA texture as render target
     rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(
         mRtvHeap->GetCPUDescriptorHandleForHeapStart(), mFrameCount,
         mRtvDescriptorSize);
-  }
-  else
-  {
+  } else {
     rtvHandle = CD3DX12_CPU_DESCRIPTOR_HANDLE(
         mRtvHeap->GetCPUDescriptorHandleForHeapStart(), m_frameIndex,
         mRtvDescriptorSize);
   }
   dsvHandle = mDsvHeap->GetCPUDescriptorHandleForHeapStart();
 
-  if (mDisableD3D12RenderPass)
-  {
-    if (!mEnableMSAA)
-    {
+  if (mDisableD3D12RenderPass) {
+    if (!mEnableMSAA) {
       stateTransition(mRenderTargets[m_frameIndex], D3D12_RESOURCE_STATE_COMMON,
                       D3D12_RESOURCE_STATE_RENDER_TARGET);
     }
@@ -990,8 +907,7 @@ void ContextD3D12::beginRenderPass()
         D3D12_CLEAR_FLAG_DEPTH | D3D12_CLEAR_FLAG_STENCIL, 1.0f, 0, 0, nullptr);
 
     mCommandList->OMSetRenderTargets(1, &rtvHandle, true, &dsvHandle);
-  }
-  else  // Enable Render Pass
+  } else  // Enable Render Pass
   {
     const float clearColor4[]{0.f, 0.8f, 1.f, 0.f};
     CD3DX12_CLEAR_VALUE clearValue{DXGI_FORMAT_R32G32B32_FLOAT, clearColor4};
@@ -1005,8 +921,7 @@ void ContextD3D12::beginRenderPass()
     renderPassRenderTargetDesc.cpuDescriptor   = rtvHandle;
     renderPassRenderTargetDesc.BeginningAccess = renderPassBeginningAccessClear;
 
-    if (mEnableMSAA)
-    {
+    if (mEnableMSAA) {
       stateTransition(
           mRenderTargets[m_frameIndex],
           D3D12_RESOURCE_STATE_COMMON,  // D3D12_RESOURCE_STATE_RENDER_TARGET
@@ -1031,8 +946,7 @@ void ContextD3D12::beginRenderPass()
       renderPassRenderTargetDesc.EndingAccess.Type =
           D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE;
       renderPassRenderTargetDesc.EndingAccess.Resolve = resolveParameters;
-    }
-    else  // non-MSAA
+    } else  // non-MSAA
     {
       stateTransition(mRenderTargets[m_frameIndex], D3D12_RESOURCE_STATE_COMMON,
                       D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -1066,8 +980,7 @@ void ContextD3D12::beginRenderPass()
   mCommandList->RSSetScissorRects(1, &mScissorRect);
 }
 
-void ContextD3D12::createDepthStencilView()
-{
+void ContextD3D12::createDepthStencilView() {
   D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
   depthStencilViewDesc.Format        = DXGI_FORMAT_D24_UNORM_S8_UINT;
   depthStencilViewDesc.ViewDimension = mEnableMSAA
@@ -1105,8 +1018,7 @@ void ContextD3D12::createDepthStencilView()
 
 void ContextD3D12::createCommandList(
     ID3D12PipelineState *pInitialState,
-    ComPtr<ID3D12GraphicsCommandList4> &commandList)
-{
+    ComPtr<ID3D12GraphicsCommandList4> &commandList) {
   ThrowIfFailed(mDevice->CreateCommandList(
       0, D3D12_COMMAND_LIST_TYPE_DIRECT, mCommandAllocators[0].Get(),
       pInitialState, IID_PPV_ARGS(&commandList)));
@@ -1115,8 +1027,7 @@ void ContextD3D12::createCommandList(
 ComPtr<ID3D12Resource> ContextD3D12::createDefaultBuffer(
     const void *initData,
     UINT64 byteSize,
-    ComPtr<ID3D12Resource> &uploadBuffer) const
-{
+    ComPtr<ID3D12Resource> &uploadBuffer) const {
   ComPtr<ID3D12Resource> defaultBuffer;
 
   CD3DX12_RESOURCE_DESC resourceDescriptor =
@@ -1156,15 +1067,13 @@ ComPtr<ID3D12Resource> ContextD3D12::createDefaultBuffer(
 
 void ContextD3D12::createRootSignature(
     const D3D12_VERSIONED_ROOT_SIGNATURE_DESC &pRootSignatureDesc,
-    ComPtr<ID3D12RootSignature> &rootSignature) const
-{
+    ComPtr<ID3D12RootSignature> &rootSignature) const {
   ComPtr<ID3DBlob> signature = nullptr;
   ComPtr<ID3DBlob> error     = nullptr;
   ThrowIfFailed(D3DX12SerializeVersionedRootSignature(
       &pRootSignatureDesc, mRootSignature.HighestVersion,
       signature.GetAddressOf(), error.GetAddressOf()));
-  if (error != nullptr)
-  {
+  if (error != nullptr) {
     ::OutputDebugStringA((char *)error->GetBufferPointer());
   }
   ThrowIfFailed(mDevice->CreateRootSignature(0, signature->GetBufferPointer(),
@@ -1180,8 +1089,7 @@ void ContextD3D12::createTexture(const D3D12_RESOURCE_DESC &textureDesc,
                                  int TextureHeight,
                                  int TexturePixelSize,
                                  int mipLevels,
-                                 int arraySize)
-{
+                                 int arraySize) {
   ThrowIfFailed(mDevice->CreateCommittedResource(
       &defaultheapProperties, D3D12_HEAP_FLAG_NONE, &textureDesc,
       D3D12_RESOURCE_STATE_COPY_DEST, nullptr, IID_PPV_ARGS(&m_texture)));
@@ -1201,22 +1109,19 @@ void ContextD3D12::createTexture(const D3D12_RESOURCE_DESC &textureDesc,
   // Max mipmap levels is 10.
   D3D12_SUBRESOURCE_DATA textureData[11];
 
-  for (int i = 0; i < num2DSubresources; i++)
-  {
+  for (int i = 0; i < num2DSubresources; i++) {
     textureData[i].pData      = texture[i];
     textureData[i].RowPitch   = TextureWidth * 4;
     textureData[i].SlicePitch = textureData[i].RowPitch * TextureHeight;
 
     // Width and height of cubemap are the same.
-    if (arraySize == 6)
-    {
+    if (arraySize == 6) {
       continue;
     }
 
     TextureWidth >>= 1;
     TextureHeight >>= 1;
-    if (TextureHeight == 0)
-    {
+    if (TextureHeight == 0) {
       TextureHeight = 1;
     }
   }
@@ -1235,8 +1140,7 @@ void ContextD3D12::createGraphicsPipelineState(
     const ComPtr<ID3DBlob> &mVertexShader,
     const ComPtr<ID3DBlob> &mPixelShader,
     ComPtr<ID3D12PipelineState> &mPipelineState,
-    bool enableBlend) const
-{
+    bool enableBlend) const {
   // Describe and create the graphics mPipeline state object (PSO).
   D3D12_DEPTH_STENCILOP_DESC stencilDesc = {};
   stencilDesc.StencilFailOp              = D3D12_STENCIL_OP_KEEP;
@@ -1304,8 +1208,7 @@ void ContextD3D12::createGraphicsPipelineState(
 void ContextD3D12::buildSrvDescriptor(
     const ComPtr<ID3D12Resource> resource,
     const D3D12_SHADER_RESOURCE_VIEW_DESC &mSrvDesc,
-    D3D12_GPU_DESCRIPTOR_HANDLE *hGpuDescriptor)
-{
+    D3D12_GPU_DESCRIPTOR_HANDLE *hGpuDescriptor) {
   mDevice->CreateShaderResourceView(resource.Get(), &mSrvDesc, cbvsrvCPUHandle);
   cbvsrvCPUHandle.Offset(mCbvmSrvDescriptorSize);
 
@@ -1315,8 +1218,7 @@ void ContextD3D12::buildSrvDescriptor(
 
 void ContextD3D12::buildCbvDescriptor(
     const D3D12_CONSTANT_BUFFER_VIEW_DESC &cbvDesc,
-    D3D12_GPU_DESCRIPTOR_HANDLE *hGpuDescriptor)
-{
+    D3D12_GPU_DESCRIPTOR_HANDLE *hGpuDescriptor) {
   mDevice->CreateConstantBufferView(&cbvDesc, cbvsrvCPUHandle);
   cbvsrvCPUHandle.Offset(mCbvmSrvDescriptorSize);
 
@@ -1324,8 +1226,7 @@ void ContextD3D12::buildCbvDescriptor(
   cbvsrvGPUHandle.Offset(mCbvmSrvDescriptorSize);
 }
 
-UINT ContextD3D12::CalcConstantBufferByteSize(UINT byteSize)
-{
+UINT ContextD3D12::CalcConstantBufferByteSize(UINT byteSize) {
   // Constant buffers must be a multiple of the minimum hardware
   // allocation size (usually 256 bytes).  So round up to nearest
   // multiple of 256.  We do this by adding 255 and then masking off
@@ -1342,8 +1243,7 @@ UINT ContextD3D12::CalcConstantBufferByteSize(UINT byteSize)
 
 void ContextD3D12::reallocResource(int preTotalInstance,
                                    int curTotalInstance,
-                                   bool enableDynamicBufferOffset)
-{
+                                   bool enableDynamicBufferOffset) {
   mPreTotalInstance = preTotalInstance;
   mCurTotalInstance = curTotalInstance;
 
@@ -1353,8 +1253,7 @@ void ContextD3D12::reallocResource(int preTotalInstance,
   // If current fish number > pre fish number, allocate a new bigger buffer.
   // If current fish number <= prefish number, do not allocate a new one.
   // TODO(yizhou) : optimize the buffer allocation strategy.
-  if (preTotalInstance >= curTotalInstance)
-  {
+  if (preTotalInstance >= curTotalInstance) {
     return;
   }
 
@@ -1369,15 +1268,13 @@ void ContextD3D12::reallocResource(int preTotalInstance,
   mFishPersBufferView.SizeInBytes = CalcConstantBufferByteSize(sizeof(FishPer));
 }
 
-void ContextD3D12::destoryFishResource()
-{
+void ContextD3D12::destoryFishResource() {
   FlushPreviousFrames();
 
   mFishPersBuffer.Reset();
   stagingBuffer.Reset();
 
-  if (fishPers != nullptr)
-  {
+  if (fishPers != nullptr) {
     delete fishPers;
     fishPers = nullptr;
   }
