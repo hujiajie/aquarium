@@ -8,14 +8,13 @@
 #ifndef AQUARIUM_H
 #define AQUARIUM_H
 
-#include "Behavior.h"
-
 #include <bitset>
 #include <queue>
 #include <string>
 #include <unordered_map>
 
 #include "../common/FPSTimer.h"
+#include "Behavior.h"
 
 class ContextFactory;
 class Context;

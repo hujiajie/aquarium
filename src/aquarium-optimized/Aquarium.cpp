@@ -9,33 +9,33 @@
 // other models. Calculate fish count for each type of fish.
 // Update uniforms for each frame.
 
+#include "Aquarium.h"
+
 #include <algorithm>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #ifdef _WIN32
-#include "Windows.h"
+#include <Windows.h>
 #else
 #include <ctime>
 #endif
-
-#include "Aquarium.h"
-#include "ContextFactory.h"
-#include "FishModel.h"
-#include "Matrix.h"
-#include "Program.h"
-#include "SeaweedModel.h"
-#include "Texture.h"
-
-#include "common/AQUARIUM_ASSERT.h"
-#include "include/CmdArgsHelper.h"
-#include "opengl/ContextGL.h"
 
 #include "rapidjson/document.h"
 #include "rapidjson/filewritestream.h"
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/stringbuffer.h"
 #include "rapidjson/writer.h"
+
+#include "ContextFactory.h"
+#include "FishModel.h"
+#include "Matrix.h"
+#include "Program.h"
+#include "SeaweedModel.h"
+#include "Texture.h"
+#include "common/AQUARIUM_ASSERT.h"
+#include "include/CmdArgsHelper.h"
+#include "opengl/ContextGL.h"
 
 Aquarium::Aquarium()
     : mModelEnumMap(),
